@@ -25,7 +25,10 @@ SECRET_KEY = '=vkplz21=sjyc&t!34@*r*@actn&!f@2l@%9^+zahon#ua!#t!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '178.128.1.122',
+    'localhost',
+]
 
 
 # Application definition
@@ -38,8 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     ######
+    'captcha',
+    'axes',
     'django_extensions',
     ######
+    'administrador',
+    'profesor',
+    'alumno',
+    'reporteria',
 ]
 
 MIDDLEWARE = [
@@ -90,6 +99,17 @@ DATABASES = {
     }
 }
 
+# Django Axes
+# https://pypi.python.org/pypi/django-axes
+
+AXES_LOGIN_FAILURE_LIMIT = 3
+
+AXES_USE_USER_AGENT = True
+
+AXES_COOLOFF_TIME = 1
+
+AXES_LOCKOUT_URL = '/administrador/locked/'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -109,7 +129,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -127,7 +146,8 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
+STATIC_URL = 'http://178.128.1.122/static/'
 
 MEDIA_URL = '/media/'
 

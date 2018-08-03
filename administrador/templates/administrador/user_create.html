@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isAdmin="true" %}
+{% endblock %}
+
+{% block content%}
+        {% include "form_bootstrap.html" with submit_value="Guardar" show_help_texts_in_hidden="True" inner_form=userprofile %}
+
+
+        <script type="text/javascript">
+        </script>
+{% endblock%}

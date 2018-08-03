@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isAdmin="true" %}
+{% endblock %}
+
+        {% block content %}
+        <a href="/administrador/periodo-new/" class="btn btn-primary form-control">Nuevo Periodo</a>
+        <hr>
+
+        <div class="table-responsive">
+            <table id="{{ table_id }}" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Periodo</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for periodo in object_list %}
+                    <tr>
+                        <td>{{ periodo.id }}</td>
+                        <td>
+                            {{ periodo.name }} - 
+                            {% for carrera in periodo.carrer.all %}
+                                {{ carrera }}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a href="/administrador/periodo-edit/{{ periodo.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></i></a>
+                        </td>
+                        <td>
+                            <button type="button" data-toggle="modal" data-target="#modal-delete-{{ periodo.id }}" style="color:#ff4d4d; border: none; background-color: transparent;"><spam class="fa fa-trash-o trash-o" alt="delete"></spam></button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="modal-delete-{{ periodo.id }}" role="dialog">
+                                <div class="modal-dialog">
+
+                                  <!-- Modal content-->
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                      <h4 class="modal-title">Eliminar Periodo</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                      <p>¿Desea eliminar el periodo <b>{{ periodo.name }}</b>?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <a class="btn btn-danger btn-round" href="/administrador/periodo-delete/{{ periodo.id }}/">Eliminar <i class="fa fa-trash-o trash-o" style="color:#ff4d4d;" alt="delete"></i></a>
+                                      <button type="button" class="btn btn-default btn-round" data-dismiss="modal">Cancelar</button>
+                                    </div>
+                                  </div>
+                                  
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+
+        <script type="text/javascript">
+        $(document).ready(function(){
+
+            postsTable = $('#{{ table_id }}').dataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.12/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "responsivePriority": 1, "targets": 0 },
+                    { "responsivePriority": 2, "targets": [-1, -2] },
+                ],
+                "pagingType": "full_numbers",             
+                "pageLength": 25,
+                "lengthMenu": [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"] ],
+                "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                    $(nRow).attr('id', aData[0]);
+                }
+            });
+        });
+        </script>
+
+        {% endblock%}

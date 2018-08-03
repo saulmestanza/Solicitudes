@@ -1,0 +1,167 @@
+
+        <form class="form-horizontal"{%if form_id%} id="{{form_id}}"{% endif%} action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+            {% csrf_token %}
+            {{ form.media }}
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <ul>
+                        {% for error in form.errors %}
+                            <li>{{ error|linebreaksbr }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% for field in form.visible_fields %}
+                <div id="id_{{ field.html_name }}_div" class="form-group row {{ field.html_name }} {% if field.errors %}error{% endif %}">
+                    <label class="col-sm-2 form-control-label">{% if field.field.required %}*{% endif %}{{ field.label }}:</label>
+                    <div class="col-sm-10">
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="alert alert-danger">                            
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            {{ field.errors.as_ul|linebreaksbr }}
+                        </div>
+                        {% endif %}
+                        {% if show_help_texts %}
+                        {{ field.help_text }}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for field in form.hidden_fields %}
+                {{ field }}
+                {% if show_help_texts_in_hidden %}
+                <div class="alert alert-info">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        <strong>Info:</strong> {{ field.help_text | safe }}
+                    </div>
+                {% endif %}
+                {% if field.errors %}
+                <div class="alert alert-danger">                            
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    {{ field.errors.as_ul }}
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            {% for form in formset %}
+                {% for field in form %}
+                {% if field.label == 'Id' %}
+                {{ field }}
+                {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            {% if formset%}
+            {% block formset %}
+            <div class="form-group row products ">
+                <label class="col-sm-2 form-control-label">{{ formset.verbose_name }}:</label> 
+                <div class="col-sm-10">
+                    <div class="table-responsive">
+                        <table id="{{ form_set_table_id }}" class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    {% for field in formset.0 %}
+                                    {% if not field.label in excluded_fields %}
+                                    {% if not field.is_hidden %}
+                                    <th>{{ field.label }}</th>
+                                    {% else %}
+                                    <th></th>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% if forloop.last %}
+                                    <th></th>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for form in formset %}
+                                <tr>
+                                    {% for field in form %}
+                                    {% if not field.label in excluded_fields %}
+                                    <td>{{ field }}</td>
+                                    {% endif %}
+                                    {% if forloop.last %}
+                                    <td><input type="button" class="btn btn-danger" onclick="deleteRowOC('{{ form_set_table_id }}', this);" style="padding: 2px; border-width: 1px;" value="Quitar" ></td>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>                        
+
+                        <input type="button" value="Agregar Fila" id="add_more" class="btn btn-success">
+                        {{ formset.management_form }}
+                        <hr>
+                        <script>
+                            $('#add_more').click(function() {
+                                var form_idx = document.getElementById("{{ form_set_table_id }}").rows.length;
+                                var row_text = '{% with formset.empty_form as form %}<tr id="{{ form_set_table_id }}_row_'+form_idx+'">' +
+                                    {% for field in form %}
+                                    {% if not field.label in excluded_fields %}
+                                    `<td>{{ field }}</td>`.replace('__prefix__', form_idx - 1).replace('__prefix__', form_idx - 1) +
+                                    {% endif %}
+                                    {% if forloop.last %}
+                                    '<td><input type="button" class="btn btn-danger" onclick="deleteRowOC(\'{{ form_set_table_id }}\', this);" style="padding: 2px; border-width: 1px;" value="Quitar" ></td>' +
+                                    {% endif %}
+                                    {% endfor %}
+                                    '</tr>{% endwith %}';
+                                var raw_row = row_text;
+                                //console.log(raw_row);
+                                //console.log($('#id_{{ formset.fk.related.get_accessor_name }}-TOTAL_FORMS'))
+                                $('#id_{{ formset.fk.remote_field.get_accessor_name }}-TOTAL_FORMS').val(form_idx);
+                                $('#{{ form_set_table_id }} > tbody:last-child').append(raw_row);
+                            });
+
+                            function deleteRowOC(table_id, row){
+                                document.getElementById(table_id).deleteRow(row.parentNode.parentNode.rowIndex);
+                                total_forms = document.getElementById('id_{{ formset.fk.remote_field.get_accessor_name }}-TOTAL_FORMS');
+                                form_idx = total_forms.value;
+                                total_forms.value = form_idx - 1;
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            {% endblock formset %}
+            {% endif %}
+
+            {% if inner_form %}
+            {% for field in inner_form.visible_fields %}
+                <div class="form-group row {{ field.html_name }} {% if field.errors %}error{% endif %}">
+                    <label class="col-sm-2 form-control-label">{% if field.field.required %}*{% endif %}{{ field.label }}:</label>
+                    <div class="col-sm-10">
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="alert alert-danger">                            
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            {{ field.errors.as_ul }}
+                        </div>
+                        {% endif %}
+                        {% if show_help_texts %}
+                        {{ field.help_text }}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% endif %}
+
+            {% if not noFormActions%}
+            <div class="form-actions">
+                <input id="id_{{submit_value}}" class="btn btn-primary form-control" type="submit" value="{{submit_value}}"/>
+                {% block extra_buttons %}
+                {% endblock extra_buttons %}
+            </div>
+            {% endif%}
+        </form>

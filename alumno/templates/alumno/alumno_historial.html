@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isAlumno="true" %}
+{% endblock %}
+
+        {% block content %}
+        <div id="buscador">
+            <label for="id_procesos">Elija tipo de Proceso para una mejor búsqueda</label>
+            <select id="id_procesos" class="form-control">
+            {% for proceso in procesos %}
+                <option value="{{ proceso.id }}">{{ proceso.name }}</option>
+            {% endfor %}
+            </select>
+        </div>
+        <hr>
+        <div class="table-responsive">
+            <table id="{{ table_id }}" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th># Solicitud</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Carrera</th>
+                        <th>Periodo</th>
+                        <th>Estado</th>
+                        <th>Fecha Inicio</th>
+                        <th>Historial</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for alumno in object_list %}
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+
+        <script type="text/javascript">
+        $(document).ready(function(){
+
+            postsTable = $('#{{ table_id }}').dataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.12/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "responsivePriority": 1, "targets": 0 },
+                    { "responsivePriority": 2, "targets": [-1, -2] },
+                ],
+                "pagingType": "full_numbers",
+                "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                    $(nRow).attr('id', aData[0]);
+                }
+            });
+        });
+        </script>
+
+        {% endblock%}

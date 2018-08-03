@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isAdmin="true" %}
+{% endblock %}
+
+{% block content%}
+
+        <form class="form-horizontal"{%if form_id%} id="{{form_id}}"{% endif%} action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <ul>
+                        {% for error in form.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div class="form-group row {{ form.captcha.html_name }} {% if form.captcha.errors %}error{% endif %}">
+                <label class="col-sm-2 form-control-label">{% if form.captcha.field.required %}*{% endif %}{{ form.captcha.label }}:</label>
+                <div class="col-sm-10">
+                	<div id="captcha-input" class="col-sm-12 input-group">
+                	{{ form.captcha }}
+                	</div>
+                    {% if form.captcha.errors %}
+                    <div class="alert alert-danger">                            
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{ form.captcha.errors.as_ul }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if not noFormActions%}
+            <div class="form-actions">
+                <input id="id_{{submit_value}}" class="btn btn-primary form-control" type="submit" value="Enviar"/>
+            </div>
+            {% endif%}
+        </form>
+
+
+        <script type="text/javascript">
+        document.getElementById('id_captcha_1').className += ' form-control';
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        captcha_img = document.getElementById('captcha-input').getElementsByTagName('img')[0];
+        captcha_img.style.height = "36px";
+        document.getElementById('captcha-input').getElementsByTagName('img')[0].remove();
+        var node = document.createElement("DIV");
+        node.style.padding = 0;
+        node.className = "input-group-addon";
+        node.appendChild(captcha_img);
+        document.getElementById('captcha-input').insertBefore(node, document.getElementById('captcha-input').getElementsByTagName('input')[0]);
+        </script>
+{% endblock%}

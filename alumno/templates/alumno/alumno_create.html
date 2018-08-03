@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" %}
+{% endblock %}
+
+{% block content%}
+<form class="form-horizontal" action="" method="POST">
+    {% csrf_token %}
+    <div id="id_first_name_div" class="form-group row first_name ">
+        <label class="col-sm-2 form-control-label">*Nombre:</label>
+        <div class="col-sm-10">
+            <input type="text" required="" name="first_name" id="id_first_name" class="form-control" maxlength="30">
+        </div>
+    </div>
+    <div id="id_last_name_div" class="form-group row last_name ">
+        <label class="col-sm-2 form-control-label">*Apellidos:</label>
+        <div class="col-sm-10">
+            <input type="text" required="" name="last_name" id="id_last_name" class="form-control" maxlength="30">
+        </div>
+    </div>
+    <div id="id_email_div" class="form-group row email ">
+        <label class="col-sm-2 form-control-label">*Dirección de correo electrónico:</label>
+        <div class="col-sm-10">
+            <input type="email" required="" name="email" id="id_email" class="form-control" maxlength="254">
+        </div>
+    </div>
+    <div id="id_password1_div" class="form-group row password1 ">
+        <label class="col-sm-2 form-control-label">*Contraseña:</label>
+        <div class="col-sm-10">
+            <input type="password" name="password1" data-placement="top" title="" data-toggle="tooltip" required="" class="form-control" id="id_password1">
+        </div>
+    </div>
+    <div id="id_password2_div" class="form-group row password2 ">
+        <label class="col-sm-2 form-control-label">*Contraseña (confirmación):</label>
+        <div class="col-sm-10">
+            <input type="password" name="password2" data-placement="top" title="" data-toggle="tooltip" required="" class="form-control" id="id_password2" data-original-title="Para verificar, introduzca la misma contraseña anterior.">
+        </div>
+    </div>
+    <div class="form-actions">
+        <input id="id_Guardar" class="btn btn-primary form-control" type="submit" value="Guardar">
+    </div>
+</form>
+{% endblock%}

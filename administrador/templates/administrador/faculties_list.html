@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isUniversidad="true" %}
+{% endblock %}
+
+        {% block content %}
+        <a href="/administrador/faculties-new/" class="btn btn-primary form-control">Nueva Facultad</a>
+        <hr>
+
+        <div class="table-responsive">
+            <table id="{{ table_id }}" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Carreras</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for faculties in object_list %}
+                    <tr>
+                        <td>{{ faculties.id }}</td>
+                        <td>{{ faculties.name }}</td>
+                        <td>
+                        {% for carrera in faculties.carrer.all %}
+                            {{ carrera }}
+                        {% endfor %}
+                        </td>
+                        <td>
+                            <a href="/administrador/faculties-edit/{{ faculties.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></i></a>
+                        </td>
+                        <td>
+                            <button type="button" data-toggle="modal" data-target="#modal-delete-{{faculties.id}}" style="color:#ff4d4d; border: none; background-color: transparent;"><spam class="fa fa-trash-o trash-o" alt="delete"></spam></button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="modal-delete-{{faculties.id}}" role="dialog">
+                                <div class="modal-dialog">
+
+                                  <!-- Modal content-->
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                      <h4 class="modal-title">Eliminar Facultad</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                      <p>¿Desea eliminar la facultad <b>{{ faculties.name }}</b>?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <a class="btn btn-danger btn-round" href="/administrador/faculties-delete/{{faculties.id}}/">Eliminar <i class="fa fa-trash-o trash-o" style="color:#ff4d4d;" alt="delete"></i></a>
+                                      <button type="button" class="btn btn-default btn-round" data-dismiss="modal">Cancelar</button>
+                                    </div>
+                                  </div>
+                                  
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+
+        <script type="text/javascript">
+        $(document).ready(function(){
+
+            postsTable = $('#{{ table_id }}').dataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.12/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "responsivePriority": 1, "targets": 0 },
+                    { "responsivePriority": 2, "targets": [-1, -2] },
+                ],
+                "pagingType": "full_numbers",
+                "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                    $(nRow).attr('id', aData[0]);
+                }
+            });
+        });
+        </script>
+
+        {% endblock%}

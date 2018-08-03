@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isUniversidad="true" %}
+{% endblock %}
+
+{% block content%}
+<form class="form-horizontal" action="" method="POST">
+    {% csrf_token %}
+    <div id="id_name_div" class="form-group row name ">
+        <label class="col-sm-2 form-control-label">*Nombre:</label>
+        <div class="col-sm-10">
+        	{% if proceso_ %}
+            <input type="text" name="name" id="id_name" required="" value="{{ proceso_.name }}" class="form-control" maxlength="128">
+            {% else %}
+            <input type="text" name="name" id="id_name" required="" class="form-control" maxlength="128">
+            {% endif %}
+        </div>
+    </div>
+    <div id="id_proceso_items_div" class="form-group row proceso_items ">
+        <label class="col-sm-2 form-control-label">*Descripción:</label>
+        <div class="col-sm-10">
+            <select name="proceso_items" required="" multiple="multiple" class="form-control" id="id_proceso_items">
+            	{% for proceso_item in proceso_items %}
+            		{% if proceso_item in proceso_.proceso_items.all %}
+                	<option value="{{proceso_item.id}}" selected="true">{{proceso_item.name}}</option>
+                	{% else %}
+                	<option value="{{proceso_item.id}}">{{proceso_item.name}}</option>
+                	{% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div id="items" class="well">
+    	<h4>Nuevo Detalle</h4>
+	    <div id="id_name_div_item" class="form-group row name_item ">
+	        <label class="col-sm-2 form-control-label">*Nombre:</label>
+	        <div class="col-sm-10">
+	            <input type="text" name="name_item" id="id_name_item" class="form-control" maxlength="128">
+	        </div>
+	    </div>
+	    <div id="id_description_div_item" class="form-group row description_item ">
+	        <label class="col-sm-2 form-control-label">*Descripción:</label>
+	        <div class="col-sm-10">
+	            <input type="text" name="description_item" id="id_description_item" class="form-control" maxlength="256">
+	        </div>
+	    </div>
+	    <div id="id_image_div_item" class="form-group row image_item ">
+	        <label class="col-sm-2 form-control-label">Imágen:</label>
+	        <div class="col-sm-10">
+	            <input type="file" name="image_item" class="form-control" id="id_image_item">
+	        </div>
+	    </div>
+	    <div class="">
+	        <input id="" class="btn btn-primary" type="button" value="Crear">
+	    </div>
+    </div>
+
+    <div class="form-actions">
+        <input id="id_Guardar" class="btn btn-primary form-control" type="submit" value="Guardar">
+    </div>
+</form>
+{% endblock%}
