@@ -19,6 +19,7 @@ class LoginForm(forms.Form):
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
 
+
 class UserForm(UserChangeForm):
     READ_ONLY_FIELDS = ['date_joined',
     'last_login',]
@@ -60,6 +61,49 @@ class UserForm(UserChangeForm):
                 setattr(self, clean_method_name, partial(self._clean_for_readonly_field, fname=field))
 
             if field in UserForm.HIDDEN_FIELDS:
+                self.fields[field].widget = forms.HiddenInput()
+
+            if field == 'password':
+                self.fields[field].help_text = _(u"Las contraseñas no se almacenan en texto plano, por lo que no hay forma de ver la de este usuario,\
+                    pero puede cambiar la contraseña usando <a href=\"/administrador/user-edit-password/%s/\">este formulario</a>."%self.instance.username)
+
+            if self.fields[field].help_text:
+                self.fields[field].widget.attrs['data-toggle'] = 'tooltip'
+                self.fields[field].widget.attrs['data-placement'] = 'top'
+                self.fields[field].widget.attrs['title'] = self.fields[field].help_text
+
+    
+    def _clean_for_readonly_field(self, fname):
+        print self.initial[fname]
+        return self.initial[fname]
+
+
+class UserStaffForm(UserChangeForm):
+    READ_ONLY_FIELDS = []
+
+    HIDDEN_FIELDS = ['password',]
+
+    first_name = forms.CharField(label=u'Nombre', max_length=30)
+    last_name = forms.CharField(label=u'Apellido', max_length=30)
+    email = forms.EmailField(label=u'Email', max_length=254, required=True)
+    password = forms.CharField(label=_(u'Contraseña'), widget=forms.HiddenInput, required=False)
+
+    class Meta:
+        model = User
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'password',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(UserStaffForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
+
+            if field in UserStaffForm.HIDDEN_FIELDS:
                 self.fields[field].widget = forms.HiddenInput()
 
             if field == 'password':

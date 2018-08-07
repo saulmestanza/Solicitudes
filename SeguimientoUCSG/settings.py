@@ -157,17 +157,17 @@ LOGIN_URL = '#'
 
 # Email Settings
 
-DEFAULT_SENDERS_EMAIL = ['saul.mm92@gmail.com',]
+DEFAULT_SENDERS_EMAIL = ['seguimiento.ucsg@gmail.com',]
 
-DEFAULT_FROM_EMAIL = 'saul.mm92@gmail.com'
+DEFAULT_FROM_EMAIL = 'seguimiento.ucsg@gmail.com'
 
 EMAIL_USE_TLS = True
 
 EMAIL_HOST = 'smtp.gmail.com'
 
-EMAIL_HOST_USER = 'saul.mm92@gmail.com'
+EMAIL_HOST_USER = 'seguimiento.ucsg@gmail.com'
 
-EMAIL_HOST_PASSWORD = 'saul!mm!1992'
+EMAIL_HOST_PASSWORD = '7UghzqGUd!mPfnEvFXpvVJSt$d5e!YUS'
 
 EMAIL_PORT = 587
 

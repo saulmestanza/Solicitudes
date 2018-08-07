@@ -59,32 +59,6 @@ class ProcesoItems(models.Model):
         return "%s"%(self.name)
 
 
-class Historial(models.Model):
-    STATUS_CHOICE=[
-    ('IN' , u'Ingresado'),
-    ('ET' , u'En tránsito'),
-    ('CN' , u'Cancelado'),
-    ('AC' , u'Acceptado'),
-    ]
-    process = models.ForeignKey(Proceso, on_delete=models.CASCADE, verbose_name=_('Proceso'))
-    name = models.CharField(max_length=128, verbose_name=_(u'Nombre'))
-    status = models.CharField(
-        max_length=2,
-        choices=STATUS_CHOICE,
-        default='IN',
-        verbose_name=_('Estado'),
-        )
-    description = models.CharField(max_length=256, verbose_name=_(u'Descripción'))
-    creation_date = models.DateField(default=timezone.now, verbose_name=_('Fecha Creación'))
-    updated_date = models.DateField(default=timezone.now, verbose_name=_('Fecha Actualización'))
-    reviewed_by = models.CharField(max_length=128, verbose_name=_(u'Revisado Por'))
-    approved_by = models.CharField(max_length=128, verbose_name=_(u'Aprobado Por'))
-    deleted = models.BooleanField(default=False)
-    
-    def __unicode__(self):
-        return "%s"%(self.name)
-
-
 class Periodo(models.Model):
     name = models.CharField(max_length=128, verbose_name=_(u'Periodo'))
     carrer = models.ManyToManyField('Carrera', verbose_name=_(u'Carrera'))

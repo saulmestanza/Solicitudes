@@ -8,7 +8,7 @@ from administrador.models import Materia
 
 class Profesor(models.Model):
     user = models.OneToOneField(User)
-    subjects = models.ManyToManyField(Materia)
+    subjects = models.ManyToManyField(Materia, verbose_name=_('Materias'))
     deleted = models.BooleanField(default=False)
     
     def __unicode__(self):

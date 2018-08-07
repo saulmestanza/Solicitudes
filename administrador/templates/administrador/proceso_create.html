@@ -23,34 +23,68 @@
             </select>
         </div>
     </div>
+    <div class="form-actions">
+        <input id="id_Guardar" class="btn btn-primary" type="submit" value="Guardar">
+    </div>
+</form>
 
+<hr>
+
+<form class="form-horizontal" action="" method="POST" id="form_proceso_item">
+    {% csrf_token %}
     <div id="items" class="well">
-    	<h4>Nuevo Detalle</h4>
+    	<h4>Nuevo Paso para el Proceso</h4>
 	    <div id="id_name_div_item" class="form-group row name_item ">
-	        <label class="col-sm-2 form-control-label">*Nombre:</label>
+	        <label class="col-sm-2 form-control-label">Nombre:</label>
 	        <div class="col-sm-10">
-	            <input type="text" name="name_item" id="id_name_item" class="form-control" maxlength="128">
+	            <input type="text" required="" name="name" id="name" class="form-control" maxlength="128">
 	        </div>
 	    </div>
 	    <div id="id_description_div_item" class="form-group row description_item ">
-	        <label class="col-sm-2 form-control-label">*Descripción:</label>
+	        <label class="col-sm-2 form-control-label">Descripción:</label>
 	        <div class="col-sm-10">
-	            <input type="text" name="description_item" id="id_description_item" class="form-control" maxlength="256">
+	            <input type="text" required="" name="description" id="description" class="form-control" maxlength="256">
 	        </div>
 	    </div>
 	    <div id="id_image_div_item" class="form-group row image_item ">
 	        <label class="col-sm-2 form-control-label">Imágen:</label>
 	        <div class="col-sm-10">
-	            <input type="file" name="image_item" class="form-control" id="id_image_item">
+	            <input type="file" name="image" class="form-control" id="image">
 	        </div>
 	    </div>
 	    <div class="">
-	        <input id="" class="btn btn-primary" type="button" value="Crear">
+	        <input id="btn_crear_item" name="btn_crear_item" class="btn btn-primary" type="submit" value="Crear">
 	    </div>
     </div>
-
-    <div class="form-actions">
-        <input id="id_Guardar" class="btn btn-primary form-control" type="submit" value="Guardar">
-    </div>
 </form>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+{% block javascript %}
+    <script type="text/javascript">
+        $('#form_proceso_item').submit(function() { // catch the form's submit event
+            $.ajax({ // create an AJAX call...
+                data: $(this).serialize(), // get the form data
+                type: $(this).attr('method'), // GET or POST
+                url: '/administrador/proceso-item-new/', // the file to call
+                success: function(response) { // on success..
+                    $("#id_proceso_items").empty();
+                    let jsonObject = JSON.parse(response);
+                    var i;
+                    var _ddl_ = document.getElementById("id_proceso_items");
+                    for (i = 0; i < jsonObject.items.length; i++) { 
+                        var option = document.createElement("option");
+                        option.text = jsonObject.items[i]['name'];
+                        option.value = jsonObject.items[i]['id'];
+                        _ddl_.add(option);
+                    }
+                    document.getElementById('name').value = "";
+                    document.getElementById('description').value = "";
+                },
+                error: function(e, x, r) { // on error..
+                    console.log(e);
+                }
+            });
+            return false;
+        });
+    </script>
+{% endblock %}
 {% endblock%}

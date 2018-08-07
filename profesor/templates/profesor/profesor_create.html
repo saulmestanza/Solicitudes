@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isProfesor="true" %}
+{% endblock %}
+
+{% block content%}
+        {% include "form_bootstrap.html" with submit_value="Guardar" %}
+{% endblock%}

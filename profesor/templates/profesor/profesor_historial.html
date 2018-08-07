@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isAlumno="true" %}
+{% endblock %}
+
+        {% block content %}
+        <div id="buscador">
+            <label for="id_procesos">Elija tipo de Proceso para una mejor búsqueda</label>
+            <select id="id_procesos" class="form-control">
+                <option value="0">Todos</option>
+            {% for proceso in procesos %}
+                <option value="{{ proceso.id }}">{{ proceso.name }}</option>
+            {% endfor %}
+            </select>
+
+            {% if perms.reporteria.add_reporter %}
+            <hr>
+
+            <label for="id_carreras">Elija la Carrera para una mejor búsqueda</label>
+            <select id="id_carreras" class="form-control">
+                <option value="0">Todos</option>
+            {% for carrera in carreras %}
+                <option value="{{ carrera.id }}">{{ carrera.name }}</option>
+            {% endfor %}
+            </select>
+
+            {% endif %}
+        </div>
+        <hr>
+        <div class="table-responsive">
+            <table id="{{ table_id }}" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th># Solicitud</th>
+                        <th>Tipo</th>
+                        {% if perms.reporteria.add_reporter %}
+                            <th>Alumno</th>
+                            <th>Carrera</th>
+                        {% endif %}
+                        
+                        <th>Periodo</th>
+                        <th>Estado</th>
+                        <th>Fecha Inicio</th>
+                        <th>Historial</th>
+
+                        {% if perms.reporteria.add_reporter %}
+                        <th>Editar</th>
+                        <th>Comentario</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for alumno in object_list %}
+                    <tr>
+                        <td>{{alumno.id}}</td>
+                        <td>{{alumno.process.name}}</td>
+
+                        {% if perms.reporteria.add_reporter %}
+                            <td>{{alumno.alumn}}</td>
+                            <td>Ing Sistemas</td>
+                        {% endif %}
+
+                        <td>{{periodo}}</td>
+
+                        <td>{{alumno.status_verbose}}</td>
+                        <td>{{alumno.creation_date}}</td>
+
+                        <td>
+                            <button type="button" data-toggle="modal" data-target="#modal-show-{{alumno.id}}" style="color:#ff4d4d; border: none; background-color: transparent;"><spam class="fa fa-eye" alt="delete"></spam></button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="modal-show-{{alumno.id}}" role="dialog">
+                                <div class="modal-dialog">
+                                  <!-- Modal content-->
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                      <h4 class="modal-title">Historial {{ alumno }}</h4>
+                                      {% for historia in historial %}
+                                        {% if historia.process_id == alumno.id %}
+                                            <p><small>
+                                                <b>Descripción: </b> {{ historia.description }}<br>
+                                                <b>Fecha: </b> {{ historia.creation_date }}<br>
+                                                <b>Revisado Por: </b> {{ historia.reviewed_by }}<br>
+                                                <b>Aprovado Por: </b> {{ historia.approved_by }}
+                                                <hr>
+                                            </small></p>
+                                        {% endif %}
+                                      {% endfor %}
+                                    </div>
+                                    <div class="modal-body">
+                                      <p></p>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-default btn-round" data-dismiss="modal">Ok</button>
+                                    </div>
+                                  </div>
+                                  
+                                </div>
+                            </div>
+                        </td>
+
+                        {% if perms.reporteria.add_reporter %}
+                        <td><a href="/profesor/proceso-profesor-edit/{{ alumno.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></a></td>
+                        <td>
+                            <button type="button" data-toggle="modal" data-target="#modal-add-{{alumno.id}}" style="color:#00b200; border: none; background-color: transparent;"><spam class="fa fa-plus" alt="delete"></spam></button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="modal-add-{{alumno.id}}" role="dialog">
+                                <div class="modal-dialog">
+                                  <!-- Modal content-->
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                      <h4 class="modal-title">Ingresar Información {{ alumno.alumn }}</h4>
+                                      <label for="comment">Comentario:</label><br>
+                                      <textarea class="form-control" style="width: 100%" rows="5" id="comment"></textarea>
+                                    </div>
+                                    <div class="modal-body">
+                                      <p></p>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-default btn-round" data-dismiss="modal">Ok</button>
+                                    </div>
+                                  </div>
+                                  
+                                </div>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+
+        <script type="text/javascript">
+        $(document).ready(function(){
+
+            postsTable = $('#{{ table_id }}').dataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.12/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "responsivePriority": 1, "targets": 0 },
+                    { "responsivePriority": 2, "targets": [-1, -2] },
+                ],
+                "pagingType": "full_numbers",
+                "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                    $(nRow).attr('id', aData[0]);
+                }
+            });
+
+            $("#id_procesos").change(function(){
+              oTable = $('#{{ table_id }}').DataTable();
+              var procesos = $("#id_procesos :selected").text();
+              if(procesos=="Todos"){
+                procesos="";
+              }
+              {% if user.is_superuser %}
+              var id_carreras = $("#id_carreras :selected").text();
+              if(id_carreras=="Todos"){
+                id_carreras="";
+              }
+              oTable.column(1).search(procesos).column(3).search(id_carreras).draw();
+              {% else %}
+              oTable.column(1).search(procesos).draw();
+              {% endif %}
+            });
+
+            $("#id_carreras").change(function(){
+              oTable = $('#{{ table_id }}').DataTable();
+              var procesos = $("#id_procesos :selected").text();
+              if(procesos=="Todos"){
+                procesos="";
+              }
+              {% if user.is_superuser %}
+              var id_carreras = $("#id_carreras :selected").text();
+              if(id_carreras=="Todos"){
+                id_carreras="";
+              }
+              oTable.column(1).search(procesos).column(3).search(id_carreras).draw();
+              {% else %}
+              oTable.column(1).search(procesos).draw();
+              {% endif %}
+            });
+        });
+        </script>
+
+        {% endblock%}

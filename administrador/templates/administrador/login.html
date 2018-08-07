@@ -19,14 +19,16 @@
             <input type="password" name="password" required="" class="form-control" id="id_password">
         </div>
     </div>
+    {% comment %}
     <div class="form-group row">
     	<div class="col-sm-6 col-xs-6">
-    		<a href="{% url "alumno-create" %}" class="btn btn-warning">Crear Cuenta</a>
+    		<a href="{% url "alumno-new" %}" class="btn btn-warning">Crear Cuenta</a>
     	</div>
         <div class="col-sm-6 col-xs-6">
             <a href="#" style="float: right;" class="">Recuperar Contraseña</a>
         </div>
     </div>
+    {% endcomment %}
     <div class="form-actions">
         <input id="id_Iniciar sesión" class="btn btn-primary form-control" type="submit" value="Iniciar sesión">
     </div>

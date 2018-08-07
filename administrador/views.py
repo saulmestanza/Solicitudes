@@ -12,13 +12,22 @@ from django.contrib.auth.views import update_session_auth_hash
 from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext as _
 from django.http import Http404
+from django.http import JsonResponse
 from django.db.models import Q
+from django.core import serializers
 from django.conf import settings
 from django.forms.utils import ErrorList
+from django.template import RequestContext
+from django.shortcuts import *
+from rest_framework import status
+from rest_framework.response import Response
 from forms import *
+from serializers import *
 from models import *
 from axes.utils import reset
 from SeguimientoUCSG import util
+import json
+
 
 class LoginView(FormView):
     form_class = LoginForm
@@ -30,11 +39,13 @@ class LoginView(FormView):
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
+            """
             if not user.is_staff and not user.is_superuser:
                 self.alert_message = {'class': 'alert alert-danger',
                 'mod': 'Error:',
                 'message': u'Usuario no autorizado.'}
                 return self.get(request)
+            """
             if user.is_active:
                 login(request, user)
                 next = request.GET.get('next')
@@ -174,7 +185,13 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 
     
     def test_func(self):
-        return self.request.user.is_superuser
+        if self.request.user.is_superuser:
+            self.form_class = UserForm
+            self.success_url = '/administrador/users-list/'
+        else:
+            self.form_class = UserStaffForm
+            self.success_url = '/'
+        return self.request.user.is_active
 
     
     def form_valid(self, form):
@@ -223,7 +240,11 @@ class UserUpdatePassword(UserPassesTestMixin, FormView):
 
     
     def test_func(self):
-        return self.request.user.is_superuser
+        if self.request.user.is_superuser:
+            self.success_url = '/administrador/users-list/'
+        else:
+            self.success_url = '/'
+        return self.request.user.is_active
 
     
     def get_form(self):
@@ -239,7 +260,7 @@ class UserUpdatePassword(UserPassesTestMixin, FormView):
     
     def get_success_url(self):
         if User.objects.filter(username=self.kwargs['username']).exists():
-            return '/admin/user-edit/%s/'%self.kwargs['username']
+            return '/administrador/user-edit/%s/'%self.kwargs['username']
         else:
             return self.success_url
 
@@ -1121,6 +1142,19 @@ class ProcesoItemCreate(UserPassesTestMixin, CreateView):
     form_class = ProcesoItemsForm
     template_name = 'administrador/proceso_item_crear.html'
     success_url = '/administrador/proceso-item-list/'
+
+    def post(self, request):
+        if request.method == "POST":
+            form = ProcesoItemsForm(request.POST)
+            message = 'something wrong!'
+            if(form.is_valid()):
+                form.save()
+                proceos_items = ProcesoItems.objects.filter(deleted=False)
+                serializer = ProcesoItemsSerializer(proceos_items, many=True)
+                return HttpResponse(json.dumps({'items': serializer.data}))
+            else:
+                return HttpResponse(json.dumps({'message': message}))
+        return HttpResponse(json.dumps({'message': message}))
 
     def form_invalid(self, form):
         return super(ProcesoItemCreate, self).form_invalid(form)

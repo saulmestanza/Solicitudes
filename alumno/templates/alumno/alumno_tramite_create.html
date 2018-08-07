@@ -26,20 +26,42 @@
     <div class="form-actions">
         <div class="btn-group btn-group-justified">
             <div class="btn-group">
-                <button id="btn_tramite" onclick="showTramite()" type="button" class="btn btn-secondary">Trámite</button>
+                <button id="btn_tramite" onclick="toTramite()" type="button" class="btn btn-secondary">Trámite</button>
             </div>
             <div class="btn-group">
-                <button id="btn_info" onclick="tramiteToInfo()" type="button" class="btn btn-secondary">Información</button>
+                <button id="btn_info" onclick="toNextInformacion()" type="button" class="btn btn-secondary">Información</button>
             </div>
             <div class="btn-group">
-                <button id="btn_confirmacion" onclick="showConfirmacion()" type="button" class="btn btn-secondary">Confirmación</button>
+                <button id="btn_confirmacion" type="button" class="btn btn-secondary">Confirmación</button>
             </div>
         </div>
+        <input type="hidden" name="alumno_id" id="alumno_id">
     </div>
+    <hr>
+    <input style="display: none;" id="id_Guardar" name="id_Guardar" class="btn btn-primary form-control" type="submit" value="Enviar">
+</form>
 
+<form class="form-horizontal" action="" method="POST" id="form_proceso_alumno">
+    {% csrf_token %}
     <div id="div_tramite">
     	<hr>
     	<div class="well">
+    		{% if user.is_superuser %}
+    		<div class="form-group">
+    			<div class="col-lg-4 col-lg-offset-2">
+	            	<label for="alumn_id">Alumno</label>
+	            </div>
+	            <div class="col-lg-4">
+		            <select id="alumn_id" name="alumn_id" class="form-control">
+		            {% for alumno in alumnos %}
+		                <option value="{{ alumno.id }}">{{ alumno.user.first_name }} {{alumno.user.last_name }}</option>
+		            {% endfor %}
+		            </select>
+	            </div>
+    		</div>
+    		{% else %}
+    		<input type="hidden" name="alumn_id" name="alumn_id" value="{{ user.alumno.id }}">
+    		{% endif %}
     		<div class="form-group">
     			<div class="col-lg-4 col-lg-offset-2">
 	            	<label for="id_periodo">Periodo</label>
@@ -66,10 +88,10 @@
     		</div>
     		<div class="form-group">
     			<div class="col-lg-4 col-lg-offset-2">
-	            	<label for="id_materia">Materia</label>
+	            	<label for="subject">Materia</label>
 	            </div>
 	            <div class="col-lg-4">
-		            <select id="id_materia" class="form-control">
+		            <select id="subject" name="subject" class="form-control">
 		            {% for materia in materias %}
 		                <option value="{{ materia.id }}">{{ materia.name }}</option>
 		            {% endfor %}
@@ -78,10 +100,10 @@
     		</div>
     		<div class="form-group">
     			<div class="col-lg-4 col-lg-offset-2">
-	            	<label for="id_procesos">Proceso</label>
+	            	<label for="process_id">Proceso</label>
 	            </div>
 	            <div class="col-lg-4">
-		            <select id="id_procesos" class="form-control">
+		            <select id="process_id" name="process_id" class="form-control">
 		            {% for proceso in procesos %}
 		                <option value="{{ proceso.id }}">{{ proceso.name }}</option>
 		            {% endfor %}
@@ -97,9 +119,14 @@
 	            </div>
     		</div>
         </div>
+        <hr>
+	    <div class="form-actions">
+	    	<input id="id_siguiente_1" style="float: right;" name="id_siguiente_1" class="btn btn-primary" type="submit" value="Siguiente">
+	    </div>
     </div>
+</form>
 
-    <div style="display: none;" id="div_informacion">
+<div style="display: none;" id="div_informacion">
     	<hr>
     	<div class="well">
     		<div>
@@ -111,9 +138,8 @@
 				                    <tr>
 				                        <th>#</th>
 				                        <th>Tema</th>
+				                        <th>Descripción</th>
 				                        <th>Documento</th>
-				                        <th>Editar</th>
-				                        <th>Remover</th>
 				                    </tr>
 				                </thead>
 				                <tbody>
@@ -125,78 +151,139 @@
 				    </div>
     			</div>
     		</div>
-    		<div>
-    			<div class="form-group">
-	    			<div class="col-lg-4 col-lg-offset-2">
-		            	<label for="id_tema">*Tema</label>
-		            </div>
-		            <div class="col-lg-4">
-			            <input type="text" name="id_tema" required="" class="form-control">
-		            </div>
+    		<form class="form-horizontal" action="" method="POST" id="form_proceso_alumno_item">
+    			{% csrf_token %}
+    			<input type="hidden" id="process_id_2" name="process_id_2">
+    			<div>
+	    			<div class="form-group">
+		    			<div class="col-lg-4 col-lg-offset-2">
+			            	<label for="name">*Tema</label>
+			            </div>
+			            <div class="col-lg-4">
+				            <input type="text" name="name" id="name" required="" class="form-control">
+			            </div>
+		    		</div>
+		    		<div class="form-group">
+		    			<div class="col-lg-4 col-lg-offset-2">
+			            	<label for="description">*Descripción</label>
+			            </div>
+			            <div class="col-lg-4">
+				           <textarea id="description" name="description" required="" class="form-control"></textarea>
+			            </div>
+		    		</div>
+		    		<div class="form-group">
+		    			<div class="col-lg-4 col-lg-offset-2">
+			            	<label for="image">Documento</label>
+			            </div>
+			            <div class="col-lg-4">
+				            <input type="file" id="image" name="image">
+			            </div>
+		    		</div>
+		    		<div class="form-group">
+		    			<div class="col-lg-10">
+		    				<input id="btn_crear_item" style="float: right;" name="btn_crear_item" class="btn btn-warning" type="submit" value="Agregar">
+			            </div>
+		    		</div>
 	    		</div>
-	    		<div class="form-group">
-	    			<div class="col-lg-4 col-lg-offset-2">
-		            	<label for="id_descripcion">*Descripción</label>
-		            </div>
-		            <div class="col-lg-4">
-			           <textarea id="id_descripcion" required="" class="form-control"></textarea>
-		            </div>
-	    		</div>
-	    		<div class="form-group">
-	    			<div class="col-lg-4 col-lg-offset-2">
-		            	<label for="id_documento">Documento</label>
-		            </div>
-		            <div class="col-lg-4">
-			            <input type="file" name="id_documento">
-		            </div>
-	    		</div>
-	    		<div class="form-group">
-	    			<div class="col-lg-10">
-		            	<button class="btn btn-warning" style="float: right;">Agregar</button>
-		            </div>
-	    		</div>
-    		</div>
+    		</form>
     		
         </div>
-    </div>
+        <hr>
+	    <div class="form-actions">
+	    	<button id="id_atras1" style="float: left;" onclick="toTramite()" name="id_atras1" class="btn btn-primary">Atrás</button>
 
-    <div style="display: none;" id="div_confirmacion">
-    	<hr>
-    	<div class="well">
-    		<div class="form-group">
-    			<div class="col-lg-3 col-lg-offset-4">
-    				<img src="{% static "images/checked.png" %}">
-    			</div>
-    			<div class="col-lg-6 col-lg-offset-4">
-	            	<label for="id_periodo">Información esta siendo enviada...</label>
-	            </div>
-    		</div>
-        </div>
-    </div>
+	    	<button id="id_siguiente_2" style="float: right;" onclick="toNextConfirmacion()" name="id_siguiente_2" class="btn btn-primary">Siguiente</button>
+	    </div>
+</div>
+
+
+<div style="display: none;" id="div_confirmacion">
     <hr>
-    <div class="form-actions">
-    	<button id="id_Siguiente" style="float: right;" name="id_Siguiente" class="btn btn-primary">Siguiente</button>
+    <div class="form-group">
+    	<div class="col-lg-6 col-lg-offset-4">
+	        <label for="id_periodo">Pulse el botón ENVIAR en la parte superior para empezar su trámite.</label>
+	    </div>
     </div>
-</form>
-<script type="text/javascript">
+</div>
 
-	function showTramite(){
-		document.getElementById("div_confirmacion").style.display = "none";
-		document.getElementById("div_tramite").style.display = "";
-		document.getElementById("div_informacion").style.display = "none";
-	}
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+{% block javascript %}
+    <script type="text/javascript">
+    	function toTramite(){
+    		document.getElementById("div_confirmacion").style.display = "none";
+			document.getElementById("div_tramite").style.display = "";
+			document.getElementById("div_informacion").style.display = "none";
+    	}
 
-	function tramiteToInfo(){
-		document.getElementById("div_confirmacion").style.display = "none";
-		document.getElementById("div_tramite").style.display = "none";
-		document.getElementById("div_informacion").style.display = "";
-	}
+    	function goToNext(){
+    		if(document.getElementById('process_id').value == 1){
+    			toNextConfirmacion();
+    		}else{
+    			toNextInformacion();
+    		}
+    	}
 
-	function showConfirmacion(){
-		document.getElementById("div_confirmacion").style.display = "";
-		document.getElementById("div_tramite").style.display = "none";
-		document.getElementById("div_informacion").style.display = "none";
-	}
+        function toNextInformacion(){
+        	document.getElementById("div_confirmacion").style.display = "none";
+			document.getElementById("div_tramite").style.display = "none";
+			document.getElementById("div_informacion").style.display = "";
+        }
 
-</script>
+        function toNextConfirmacion(){
+        	document.getElementById("id_Guardar").style.display="";
+        	document.getElementById("div_confirmacion").style.display = "";
+			document.getElementById("div_tramite").style.display = "none";
+			document.getElementById("div_informacion").style.display = "none";
+        }
+
+        $('#form_proceso_alumno_item').submit(function() { // catch the form's submit event
+            $.ajax({ // create an AJAX call...
+                data: $(this).serialize(), // get the form data
+                type: $(this).attr('method'), // GET or POST
+                url: '/alumno/proceso-item-new/', // the file to call
+                success: function(response) { // on success..
+                    console.log(response);
+                    let jsonObject = JSON.parse(response);
+
+                    var table = document.getElementById("table");
+				    var row = table.insertRow(1);
+				    var cell1 = row.insertCell(0);
+				    var cell2 = row.insertCell(1);
+				    var cell3 = row.insertCell(2);
+				    var cell4 = row.insertCell(3);
+				    cell1.innerHTML = jsonObject.items['id'];
+				    cell2.innerHTML = jsonObject.items['name'];
+				   	cell3.innerHTML = jsonObject.items['description'];
+				    cell4innerHTML = '';
+				    document.getElementById('name').value = "";
+                    document.getElementById('description').value = "";
+                },
+                error: function(e, x, r) { // on error..
+                    console.log(e);
+                }
+            });
+            return false;
+        });
+
+        $('#form_proceso_alumno').submit(function() { // catch the form's submit event
+            $.ajax({ // create an AJAX call...
+                data: $(this).serialize(), // get the form data
+                type: $(this).attr('method'), // GET or POST
+                url: '/alumno/proceso-alumno-new/', // the file to call
+                success: function(response) { // on success..
+                	{% if user.is_superuser %}
+                		document.getElementById('alumno_id').value = document.getElementById('alumn_id').value;
+                	{% endif %}
+                    let jsonObject = JSON.parse(response);
+                    document.getElementById('process_id_2').value = jsonObject.items['id'];
+                    goToNext();
+                },
+                error: function(e, x, r) { // on error..
+                    console.log(e);
+                }
+            });
+            return false;
+        });
+    </script>
+{% endblock %}
 {% endblock%}

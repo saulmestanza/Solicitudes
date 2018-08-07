@@ -10,8 +10,8 @@ urlpatterns = [
 	#
 	url(r'^users-list/$', views.UsersListView.as_view(), name='administrador-users-list'),
 	url(r'^user-new/$', views.UserCreate.as_view(), name='administrador-user-new'),
-	url(r'^user-edit/(?P<username>[\w\-]+)/$', views.UserUpdate.as_view(), name='administrador-user-edit'),
-	url(r'^user-edit-password/(?P<username>[\w\-]+)/$', views.UserUpdatePassword.as_view(), name='administrador-user-edit-password'),
+	url(r'^user-edit/(?P<username>\w+|[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4})/$', views.UserUpdate.as_view(), name='administrador-user-edit'),
+	url(r'^user-edit-password/(?P<username>\w+|[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4})/$', views.UserUpdatePassword.as_view(), name='administrador-user-edit-password'),
 	#
 	url(r'^permissions-list/$', views.PermissionsListView.as_view(), name='administrador-permissions-list'),
 	url(r'^permission-new/$', views.PermissionCreate.as_view(), name='administrador-permission-new'),
@@ -52,6 +52,7 @@ urlpatterns = [
 	url(r'^proceso-new/$', views.ProcesoCreate.as_view(), name='administrador-proceso-new'),
 	url(r'^proceso-edit/(?P<id>[\d\-]+)/$', views.ProcesoUpdate.as_view(), name='administrador-proceso-edit'),
 	url(r'^proceso-delete/(?P<id>[\d\-]+)/$', views.ProcesoDelete.as_view(), name='administrador-proceso-delete'),
+	
 	url(r'^proceso-item-list/$', views.ProcesoItemsListView.as_view(), name='administrador-proceso-item-list'),
 	url(r'^proceso-item-new/$', views.ProcesoItemCreate.as_view(), name='administrador-proceso-item-new'),
 	url(r'^proceso-item-edit/(?P<id>[\d\-]+)/$', views.ProcesoItemUpdate.as_view(), name='administrador-proceso-item-edit'),

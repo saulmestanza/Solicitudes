@@ -72,19 +72,36 @@
                             <li><a href="{% url "administrador-proceso-new" %}">Nuevo Proceso</a></li>
                           </ul>
                     </li>
+                    {% endif %}
+                    
+                    {% if perms.alumno.add_procesoalumno %}
                     <li class="dropdown{% if isAlumno %} active{% endif%}">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Alumnos<b class="caret"></b></a>
                           <ul class="dropdown-menu">
+                            {% if request.user.is_superuser %}
+                            <li><a href="{% url "alumno-list" %}">Lista Alumnos</a></li>
+                            <li class="divider"></li>
+                            {% endif %}
                             <li><a href="{% url "alumno-tramite" %}">Iniciar Trámite</a></li>
                             <li><a href="{% url "alumno-seguimiento" %}">Seguimiento Trámites</a></li>
                           </ul>
                     </li>
+                    {% endif %}
+
+                    {% if perms.reporteria.add_reporter %}
                     <li class="dropdown{% if isProfesor %} active{% endif%}">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profesores<b class="caret"></b></a>
                           <ul class="dropdown-menu">
-                            <li><a href="#">Trámites</a></li>
+                            {% if request.user.is_superuser %}
+                            <li><a href="{% url "profesores-list" %}">Lista Profesores</a></li>
+                            <li class="divider"></li>
+                            {% endif %}
+                            <li><a href="{% url "profesor-seguimiento" %}">Trámites</a></li>
                           </ul>
                     </li>
+                    {% endif %}
+
+                    {% if perms.reporteria.add_reporter %}
                     <li class="dropdown{% if isReporte %} active{% endif%}">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reportes<b class="caret"></b></a>
                           <ul class="dropdown-menu">
@@ -97,16 +114,21 @@
 
               <ul class="nav navbar-nav navbar-right">
                     {% if user.is_authenticated %}
-                    <li>
-                      <a href="{% url "administrador-logout" %}">Cerrar sesión</a>
-                    </li>
-                    <li>
-                      <a href="#" class="badge badge-warning" style="background-color: #660c0c !important"><img src="{% static "images/notification.png" %}" alt="notification" style="width: 20px; height: 20px;">{{ notification }}</a>
-                    </li>
+                      {% if not request.user.is_superuser %}
+                      <li>
+                        <a href="{% url "administrador-user-edit" username=user.username %}">Perfil</a>
+                      </li>
+                      {% endif %}
+                      <li>
+                        <a href="{% url "administrador-logout" %}">Cerrar sesión</a>
+                      </li>
+                      <li>
+                        <a href="#" class="badge badge-warning" style="background-color: #660c0c !important"><img src="{% static "images/notification.png" %}" alt="notification" style="width: 20px; height: 20px;">{{ notification }}</a>
+                      </li>
                     {% else %}
-                    <li>
-                      <a href="{% url "administrador-login" %}">Iniciar sesión</a>
-                    </li>
+                      <li>
+                        <a href="{% url "administrador-login" %}">Iniciar sesión</a>
+                      </li>
                     {% endif %}
                </ul>
 
