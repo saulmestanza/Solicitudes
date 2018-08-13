@@ -40,7 +40,9 @@
 
             {% if not noFormActions%}
             <div class="form-actions">
-                <input id="id_{{submit_value}}" class="btn btn-primary form-control" type="submit" value="Enviar"/>
+                <div class="row text-center">
+                    <input id="id_{{submit_value}}" class="btn btn-primary" type="submit" value="Enviar"/>
+                </div>
             </div>
             {% endif%}
         </form>

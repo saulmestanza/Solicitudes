@@ -46,5 +46,6 @@ urlpatterns = [
     url(r'^profesor/', include('profesor.urls')),
     url(r'^alumno/', include('alumno.urls')),
     url(r'^reporteria/', include('reporteria.urls')),
+    url(r'^api/', include('webservices.urls')),
     url(r'^captcha/', include('captcha.urls')),
 ]

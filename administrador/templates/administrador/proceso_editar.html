@@ -11,28 +11,44 @@
         <label class="col-sm-2 form-control-label">*Nombre:</label>
         <div class="col-sm-10">
         	{% if proceso_ %}
-            <input type="text" name="name" id="id_name" required="" value="{{ proceso_.name }}" class="form-control" maxlength="128">
+            <input data-toggle="tooltip" data-placement="top" title="Nombre del Proceso" type="text" name="name" id="id_name" required="" value="{{ proceso_.name }}" class="form-control" maxlength="128">
             {% else %}
-            <input type="text" name="name" id="id_name" required="" class="form-control" maxlength="128">
+            <input data-toggle="tooltip" data-placement="top" title="Nombre del Proceso" type="text" name="name" id="id_name" required="" class="form-control" maxlength="128">
             {% endif %}
         </div>
     </div>
     <div id="id_proceso_items_div" class="form-group row proceso_items ">
         <label class="col-sm-2 form-control-label">*Descripción:</label>
         <div class="col-sm-10">
-            <select name="proceso_items" required="" multiple="multiple" class="form-control" id="id_proceso_items">
+            <select data-toggle="tooltip" data-placement="top" title="Descripción del proceso para los Alumnos" name="proceso_items" required="" multiple="multiple" class="form-control" id="id_proceso_items">
             	{% for proceso_item in proceso_items %}
             		{% if proceso_item in proceso_.proceso_items.all %}
-                	<option value="{{proceso_item.id}}" selected="true">{{proceso_item.name}}</option>
+                	<option value="{{proceso_item.id}}" selected="true">{{proceso_item.description}}</option>
                 	{% else %}
-                	<option value="{{proceso_item.id}}">{{proceso_item.name}}</option>
+                	<option value="{{proceso_item.id}}">{{proceso_item.description}}</option>
                 	{% endif %}
                 {% endfor %}
             </select>
         </div>
+        <div class="col-sm-10 col-sm-offset-2">
+            <a href="JavaScript:void(0);" id="btn-up">Arriba <i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+        </div>
+        <div class="col-sm-10 col-sm-offset-2">
+             <a href="JavaScript:void(0);" id="btn-down">Abajo <i class="fa fa-arrow-down" aria-hidden="true"></i></a>
+        </div>
+    </div>
+    <div id="id_deleted_div" class="form-group row deleted ">
+        <label class="col-sm-2 form-control-label">No Activo:</label>
+        <div class="col-sm-10">
+            {% if proceso_.deleted %}
+            <input type="checkbox" checked="true" name="deleted" class="form-control" id="id_deleted">   
+            {% else %}
+            <input type="checkbox" name="deleted" class="form-control" id="id_deleted">   
+            {% endif %}
+        </div>
     </div>
     <div class="form-actions">
-        <input id="id_Guardar" class="btn btn-primary" type="submit" value="Guardar">
+        <input data-toggle="tooltip" data-placement="top" title="Guardar Proceso" id="id_Guardar" class="btn btn-primary" type="submit" value="Guardar">
     </div>
 </form>
 
@@ -41,15 +57,15 @@
 <form class="form-horizontal" action="" method="POST" id="form_proceso_item">
     {% csrf_token %}
     <div id="items" class="well">
-        <h4>Nuevo Paso para el Proceso</h4>
+        <h4>Nuevos Items para la descripción del Proceso</h4>
         <div id="id_name_div_item" class="form-group row name_item ">
-            <label class="col-sm-2 form-control-label">Nombre:</label>
+            <label class="col-sm-2 form-control-label">*Nombre:</label>
             <div class="col-sm-10">
                 <input type="text" required="" name="name" id="name" class="form-control" maxlength="128">
             </div>
         </div>
         <div id="id_description_div_item" class="form-group row description_item ">
-            <label class="col-sm-2 form-control-label">Descripción:</label>
+            <label class="col-sm-2 form-control-label">*Descripción:</label>
             <div class="col-sm-10">
                 <input type="text" required="" name="description" id="description" class="form-control" maxlength="256">
             </div>
@@ -61,7 +77,7 @@
             </div>
         </div>
         <div class="">
-            <input id="btn_crear_item" name="btn_crear_item" class="btn btn-primary" type="submit" value="Crear">
+            <input data-toggle="tooltip" data-placement="top" title="Guardar nuevo item" id="btn_crear_item" name="btn_crear_item" class="btn btn-primary" type="submit" value="Crear">
         </div>
     </div>
 </form>
@@ -69,6 +85,28 @@
 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 {% block javascript %}
     <script type="text/javascript">
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip(); 
+            $('#btn-up').bind('click', function() {
+                $('#id_proceso_items option:selected').each( function() {
+                    var newPos = $('#id_proceso_items option').index(this) - 1;
+                    if (newPos > -1) {
+                        $('#id_proceso_items option').eq(newPos).before("<option value='"+$(this).val()+"' selected='selected'>"+$(this).text()+"</option>");
+                        $(this).remove();
+                    }
+                });
+            });
+            $('#btn-down').bind('click', function() {
+                var countOptions = $('#id_proceso_items option').length;
+                $('#id_proceso_items option:selected').each( function() {
+                    var newPos = $('#id_proceso_items option').index(this) + 1;
+                    if (newPos < countOptions) {
+                        $('#id_proceso_items option').eq(newPos).after("<option value='"+$(this).val()+"' selected='selected'>"+$(this).text()+"</option>");
+                        $(this).remove();
+                    }
+                });
+            });
+        });
         $('#form_proceso_item').submit(function() { // catch the form's submit event
             $.ajax({ // create an AJAX call...
                 data: $(this).serialize(), // get the form data

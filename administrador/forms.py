@@ -202,9 +202,9 @@ class FacultadForm(forms.ModelForm):
         model = Facultad
         fields = (
             'name',
-            'carrer',
+            'deleted',
+            # 'carrer',
         )
-        exclude =('deleted', )
 
     def __init__(self, *args, **kwargs):
         super(FacultadForm, self).__init__(*args, **kwargs)
@@ -219,9 +219,9 @@ class CarreraForm(forms.ModelForm):
         model = Carrera
         fields = (
             'name',
-            'cicles',
+            'faculty',
+            'deleted',
         )
-        exclude =('deleted', )
 
     def __init__(self, *args, **kwargs):
         super(CarreraForm, self).__init__(*args, **kwargs)
@@ -236,9 +236,9 @@ class CicloForm(forms.ModelForm):
         model = Ciclo
         fields = (
             'name',
-            'subjects',
+            'carrer',
+            'deleted',
         )
-        exclude =('deleted', )
 
     def __init__(self, *args, **kwargs):
         super(CicloForm, self).__init__(*args, **kwargs)
@@ -254,8 +254,9 @@ class MateriaForm(forms.ModelForm):
         fields = (
             'name',
             'description',
+            'cicles',
+            'deleted',
         )
-        exclude =('deleted', )
 
     def __init__(self, *args, **kwargs):
         super(MateriaForm, self).__init__(*args, **kwargs)
@@ -275,8 +276,8 @@ class ProcesoForm(forms.ModelForm):
         fields = (
             'name',
             'proceso_items',
+            'deleted',
         )
-        exclude =('deleted', )
 
     def __init__(self, *args, **kwargs):
         super(ProcesoForm, self).__init__(*args, **kwargs)
@@ -308,7 +309,6 @@ class PeriodoForm(forms.ModelForm):
     class Meta:
         model = Periodo
         fields = ( '__all__')
-        exclude =('deleted', )
 
     def __init__(self, *args, **kwargs):
         super(PeriodoForm, self).__init__(*args, **kwargs)

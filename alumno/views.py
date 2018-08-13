@@ -5,11 +5,13 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.views.generic.list import ListView
-from django.views.generic import DeleteView
+from django.views.generic import DeleteView, TemplateView
 from django.core.mail import EmailMessage
+from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import update_session_auth_hash
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseNotFound, Http404,  HttpResponseRedirect
@@ -25,6 +27,8 @@ from serializers import *
 from profesor.models import *
 from administrador.models import *
 import json
+import random
+import string
 
 # Create your views here.
 class AlumnoListView(UserPassesTestMixin, ListView):
@@ -447,3 +451,253 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
                 form.fields[field].widget.attrs['title'] = form.fields[field].help_text
         return context
     
+
+class AlumnoNewCreateView(CreateView):
+    form_class = AlumnoNewForm
+    template_name = 'alumno/alumno_create.html'
+
+    def send_mail_to_user(self, alumno, request):
+        link = reverse_lazy('alumno-activate', kwargs={'token':alumno.token, 'username':alumno.user.username})
+        context = {
+            'email': alumno.user.email,
+            'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
+            'site_name': 'Seguimiento UCSG',
+            'alumno': alumno,
+            'link': "%s%s%s"%('http://', request.META['HTTP_HOST'],link),
+            'protocol': 'https',
+        }
+        subject_template_name = 'alumno/new_account_subject.txt'
+        email_template_name = 'alumno/new_account_activate.html'
+        subject = loader.render_to_string(subject_template_name, context)
+        subject = ''.join(subject.splitlines())
+        email = loader.get_template(email_template_name).render(context)
+        email_message = EmailMessage(
+            subject,
+            email,
+            to=[alumno.user.email],
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        email_message.content_subtype = 'html'
+        email_message.send(fail_silently=False)
+    
+    def get_success_url(self):
+        return reverse('alumno-resend')
+
+    def get(self, request, next=None):
+        return super(AlumnoNewCreateView, self).get(request)
+
+    def form_valid(self, form):
+        try:
+            if User.objects.filter(username=form.instance.user.username).exists():
+                errors = form._errors.setdefault("email", ErrorList())
+                errors.append(u"Ya existe un usuario registrado con este email")
+                response = super(AlumnoNewCreateView, self).form_invalid(form)
+            else:
+                response = super(AlumnoNewCreateView, self).form_valid(form)
+                _user_id_ = form.instance.user.id
+                user = User.objects.filter(pk=_user_id_).first()
+                alumno = Alumno.objects.filter(user=user).first()
+                token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12))
+                alumno.token = token
+                alumno.save()
+                self.send_mail_to_user(alumno, self.request)
+        except Exception, e:
+            print 'Error', e
+            errors = form._errors.setdefault("email", ErrorList())
+            errors.append(u"Ya existe un usuario registrado con este email")
+            if form.instance.user.id:
+                form.instance.user.delete()
+            response = super(AlumnoNewCreateView, self).form_invalid(form)
+        return response
+
+    def form_invalid(self, form):
+        return super(AlumnoNewCreateView, self).form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(AlumnoNewCreateView, self).get_context_data(**kwargs)
+        context['tittle'] = "Alumnos"
+        context['motto'] = "Formulario para crear un nuevo Alumno"
+        return context
+
+
+class AlumnoActivateView(ListView):
+    model = Alumno
+    template_name = 'alumno/alumno_activate.html'
+
+    def send_mail_to_user(self, alumno, request):
+        link = reverse_lazy('alumno-activate', kwargs={'token':alumno.token, 'username':alumno.user.username})
+        context = {
+            'email': alumno.user.email,
+            'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
+            'site_name': 'Seguimiento UCSG',
+            'alumno': alumno,
+            'link': "%s%s%s"%('http://', request.META['HTTP_HOST'],link),
+            'protocol': 'https',
+        }
+        subject_template_name = 'alumno/new_account_subject.txt'
+        email_template_name = 'alumno/new_account_activate.html'
+        subject = loader.render_to_string(subject_template_name, context)
+        subject = ''.join(subject.splitlines())
+        email = loader.get_template(email_template_name).render(context)
+        email_message = EmailMessage(
+            subject,
+            email,
+            to=[alumno.user.email],
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        email_message.content_subtype = 'html'
+        email_message.send(fail_silently=False)
+
+    def get(self, request, *args, **kwargs):
+        username = kwargs.get('username', None)
+        user = User.objects.filter(username=username).first()
+        token = kwargs.get('token', None)
+        try:
+            alumno = Alumno.objects.get(user__username=username)
+            if alumno.token == token:
+                alumno.is_active = True
+                alumno.save()
+                login(request, user)
+                next = request.GET.get('next')
+                if next is not None:
+                    return redirect(next)
+                return redirect('/')
+            else:
+                token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12))
+                alumno.token = token
+                alumno.save()
+                self.send_mail_to_user(alumno, self.request)
+                raise Http404
+        except Exception as e:
+            raise Http404
+
+
+class AlumnoResendView(TemplateView):
+    alert_message = {'class': 'alert alert-warning', 'mod': 'Aviso:', 'message': u'Para poder ingresar al sistema debe de activar su cuenta, se ha enviado el link de activación al correo electrónico ingresado anteriormente. Porfavor revisar.'}
+    template_name = 'alumno/alumno_resend.html'
+
+    def send_mail_to_user(self, alumno, request):
+        link = reverse_lazy('alumno-activate', kwargs={'token':alumno.token, 'username':alumno.user.username})
+        context = {
+            'email': alumno.user.email,
+            'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
+            'site_name': 'Seguimiento UCSG',
+            'alumno': alumno,
+            'link': "%s%s%s"%('http://', request.META['HTTP_HOST'],link),
+            'protocol': 'https',
+        }
+        subject_template_name = 'alumno/new_account_subject.txt'
+        email_template_name = 'alumno/new_account_activate.html'
+        subject = loader.render_to_string(subject_template_name, context)
+        subject = ''.join(subject.splitlines())
+        email = loader.get_template(email_template_name).render(context)
+        email_message = EmailMessage(
+            subject,
+            email,
+            to=[alumno.user.email],
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        email_message.content_subtype = 'html'
+        email_message.send(fail_silently=False)
+
+    def post(self, request):
+        if request.method == "POST":
+            email = request.POST.get("id_email", "")
+            if email:
+                user = User.objects.filter(email=email).first()
+                if user:
+                    alumno = Alumno.objects.filter(user=user).first()
+                    token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12))
+                    alumno.token = token
+                    alumno.save()
+                    self.send_mail_to_user(alumno, self.request)
+                    self.alert_message = {'class': 'alert alert-success',
+                    'mod': 'Envío exitoso:',
+                    'message': u'El correo ha sido enviado.'}
+                else:
+                    self.alert_message = {'class': 'alert alert-danger',
+                    'mod': 'Envio exitoso:',
+                    'message': u'Ingrese un correo electrónico válido.'}
+            else:
+                self.alert_message = {'class': 'alert alert-danger',
+                'mod': 'Error:',
+                'message': u'Ingrese un correo electrónico.'}
+            return self.get(request)
+
+    def get_success_url(self):
+        return "/"
+
+    def get(self, request, next=None):
+        return super(AlumnoResendView, self).get(request)
+
+    def get_context_data(self, **kwargs):
+        context = super(AlumnoResendView, self).get_context_data(**kwargs)
+        context['alert_message'] = self.alert_message
+        context['tittle'] = "Alumnos"
+        context['motto'] = "Reenviar Correo Activación"
+        return context
+
+
+class AlumnoResetView(TemplateView):
+    alert_message = None
+    template_name = 'alumno/alumno_reset.html'
+
+    def send_mail_to_user(self, user, token, request):
+        link = reverse('administrador-login')
+        context = {
+            'email': user.email,
+            'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
+            'site_name': 'Seguimiento UCSG',
+            'user': user,
+            'token': token,
+            'link': "%s%s%s"%('http://', request.META['HTTP_HOST'],link),
+            'protocol': 'https',
+        }
+        email_template_name = 'alumno/account_reset.html'
+        subject = 'Recuperar Contraseña'
+        email = loader.get_template(email_template_name).render(context)
+        email_message = EmailMessage(
+            subject,
+            email,
+            to=[user.email],
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        email_message.content_subtype = 'html'
+        email_message.send(fail_silently=False)
+
+    def post(self, request):
+        if request.method == "POST":
+            email = request.POST.get("id_email", "")
+            if email:
+                user = User.objects.filter(email=email).first()
+                if user:
+                    token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(24))
+                    user.set_password(token)
+                    user.save()
+                    self.send_mail_to_user(user, token, self.request)
+                    self.alert_message = {'class': 'alert alert-success',
+                    'mod': 'Cambio exitoso:',
+                    'message': u'Se ha enviado un correo con tu nueva contraseña.'}
+                else:
+                    self.alert_message = {'class': 'alert alert-danger',
+                    'mod': 'Envio exitoso:',
+                    'message': u'Ingrese un correo electrónico válido.'}
+            else:
+                self.alert_message = {'class': 'alert alert-danger',
+                'mod': 'Error:',
+                'message': u'Ingrese un correo electrónico.'}
+            return self.get(request)
+
+    def get_success_url(self):
+        return "/"
+
+    def get(self, request, next=None):
+        return super(AlumnoResetView, self).get(request)
+
+    def get_context_data(self, **kwargs):
+        context = super(AlumnoResetView, self).get_context_data(**kwargs)
+        context['alert_message'] = self.alert_message
+        context['tittle'] = "Alumnos"
+        context['motto'] = "Recuperar Contraseña"
+        return context
+

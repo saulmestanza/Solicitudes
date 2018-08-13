@@ -116,8 +116,6 @@
                                     {% endfor %}
                                     '</tr>{% endwith %}';
                                 var raw_row = row_text;
-                                //console.log(raw_row);
-                                //console.log($('#id_{{ formset.fk.related.get_accessor_name }}-TOTAL_FORMS'))
                                 $('#id_{{ formset.fk.remote_field.get_accessor_name }}-TOTAL_FORMS').val(form_idx);
                                 $('#{{ form_set_table_id }} > tbody:last-child').append(raw_row);
                             });
@@ -159,7 +157,9 @@
 
             {% if not noFormActions%}
             <div class="form-actions">
-                <input id="id_{{submit_value}}" class="btn btn-primary form-control" type="submit" value="{{submit_value}}"/>
+                <div class="row text-center">
+                    <input id="id_{{submit_value}}" class="btn btn-primary" type="submit" value="{{submit_value}}"/>
+                </div>
                 {% block extra_buttons %}
                 {% endblock extra_buttons %}
             </div>

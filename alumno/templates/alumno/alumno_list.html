@@ -14,6 +14,7 @@
                     <tr>
                         <th>Usuario</th>
                         <th>Nombre Completo</th>
+                        <th>Carrera</th>
                         <th>Cuenta</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
@@ -25,7 +26,8 @@
                     <tr>
                         <td>{{ alumno.user.username }}</td>
                         <td>{{ alumno.user.first_name }} {{ alumno.user.last_name }}</td>
-                        <td>{% if alumno.user.is_active %}
+                        <td>{{ alumno.carrer }}</td>
+                        <td>{% if alumno.is_active %}
                             <spam class="label label-success">ACTIVA</spam>
                             {% else %}
                             <spam class="label label-default">INACTIVA</spam>

@@ -6,9 +6,135 @@
 
 {% block content%}
 
-        {% include "form_bootstrap.html" with submit_value="Guardar" %}
+<form class="form-horizontal" action="" method="POST">
+    {% csrf_token %}
+    <div id="id_name_div" class="form-group row name ">
+        <label class="col-sm-2 form-control-label">*Nombre:</label>
+        <div class="col-sm-10">
+            <input type="text" name="name" id="id_name" required="" class="form-control" maxlength="128">
+        </div>
+    </div>
+    <div id="id_description_div" class="form-group row description ">
+        <label class="col-sm-2 form-control-label">Descripción:</label>
+        <div class="col-sm-10">
+            <input type="text" name="description" id="id_description" class="form-control" maxlength="128">
+        </div>
+    </div>
+    <div id="id_cicles_div" class="form-group row faculties ">
+        <label class="col-sm-2 form-control-label">Facultad:</label>
+        <div class="col-sm-10">
+            <select name="faculties" class="form-control" id="id_faculty">
+                <option value="0" selected="">---------</option>
+                {% for faculty in faculties %}
+                	<option value="{{faculty.id}}">{{faculty.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div id="id_cicles_div" class="form-group row carrers ">
+        <label class="col-sm-2 form-control-label">Carrera:</label>
+        <div class="col-sm-10">
+            <select name="carrers" class="form-control" id="id_carrers">
+                <option value="" selected="">---------</option>
+            </select>
+        </div>
+    </div>
+    <div id="id_cicles_div" class="form-group row cicles ">
+        <label class="col-sm-2 form-control-label">Ciclo:</label>
+        <div class="col-sm-10">
+            <select name="cicles" class="form-control" id="id_cicles">
+                <option value="" selected="">---------</option>
+            </select>
+        </div>
+    </div>
+    <div id="id_deleted_div" class="form-group row deleted ">
+        <label class="col-sm-2 form-control-label">No Activo:</label>
+        <div class="col-sm-10">
+            <input type="checkbox" name="deleted" class="form-control" id="id_deleted">   
+        </div>
+    </div>
+    <div class="form-actions">
+        <input id="id_Guardar" class="btn btn-primary form-control" type="submit" value="Guardar">
+    </div>
+</form>
 
 
-        <script type="text/javascript">
-        </script>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+{% block javascript %}
+    <script type="text/javascript">
+    	$('#id_faculty').change(function(){
+    		if(document.getElementById('id_faculty').value == 0){
+    			$("#id_carrers").empty();
+    			var _ddl_ = document.getElementById("id_carrers");
+    			var option = document.createElement("option");
+                option.text = "---------";
+                option.value = "0";
+                _ddl_.add(option);
+    		}else{
+    			var id = document.getElementById('id_faculty').value;
+    			$.ajax({ // create an AJAX call...
+	                data: $(this).serialize(), // get the form data
+	                type: $(this).attr('method'), // GET or POST
+	                url: '/api/carreras/' + id, // the file to call
+	                success: function(response) { // on success..
+	                    $("#id_carrers").empty();
+	                    var i;
+	                    var _ddl_ = document.getElementById("id_carrers");
+	                    var option = document.createElement("option");
+	                    option.text = "---------";
+		                option.value = "0";
+		                _ddl_.add(option);
+	                    for (i = 0; i < response.length; i++) { 
+	                        option = document.createElement("option");
+	                        option.text = response[i]['name'];
+	                        option.value = response[i]['id'];
+	                        _ddl_.add(option);
+	                    }
+	                },
+	                error: function(e, x, r) { // on error..
+                         $("#id_carrers").empty();
+	                    console.log(e);
+	                }
+	            });
+    		}
+        });
+
+        $('#id_carrers').change(function(){
+    		if(document.getElementById('id_carrers').value == 0){
+    			$("#id_cicles").empty();
+    			var _ddl_ = document.getElementById("id_cicles");
+    			var option = document.createElement("option");
+                option.text = "---------";
+                option.value = "0";
+                _ddl_.add(option);
+    		}else{
+    			var id = document.getElementById('id_carrers').value;
+    			$.ajax({ // create an AJAX call...
+	                data: $(this).serialize(), // get the form data
+	                type: $(this).attr('method'), // GET or POST
+	                url: '/api/ciclos/' + id, // the file to call
+	                success: function(response) { // on success..
+	                    $("#id_cicles").empty();
+	                    var i;
+	                    var _ddl_ = document.getElementById("id_cicles");
+	                    for (i = 0; i < response.length; i++) { 
+	                        var option = document.createElement("option");
+	                        option.text = response[i]['name'];
+	                        option.value = response[i]['id'];
+	                        _ddl_.add(option);
+	                    }
+	                },
+	                error: function(e, x, r) { // on error..
+                        $("#id_cicles").empty();
+	                    console.log(e);
+	                }
+	            });
+    		}
+        });
+        
+    </script>
+{% endblock %}
+
 {% endblock%}
+
+

@@ -14,7 +14,8 @@
                     <tr>
                         <th>#</th>
                         <th>Nombre</th>
-                        <th>Ciclos</th>
+                        <th>Facultad</th>
+                        <th>Estado</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
                     </tr>
@@ -25,10 +26,12 @@
                     <tr>
                         <td>{{ carrera.id }}</td>
                         <td>{{ carrera.name }}</td>
-                        <td>
-                        {% for ciclo in carrera.cicles.all %}
-                            {{ ciclo }}
-                        {% endfor %}
+                        <td>{{ carrera.faculty }}</td>
+                        <td>{% if not carrera.deleted %}
+                            <spam class="label label-success">ACTIVO</spam>
+                            {% else %}
+                            <spam class="label label-default">INACTIVO</spam>
+                        {% endif %}
                         </td>
                         <td>
                             <a href="/administrador/carrera-edit/{{ carrera.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></i></a>

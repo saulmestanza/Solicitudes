@@ -40,3 +40,75 @@ class ProcesoItemsSerializer(serializers.ModelSerializer):
 		return result
 
 
+class FacultadSerializer(serializers.ModelSerializer):
+	id = serializers.IntegerField(required=False)
+
+	class Meta:
+		model = Facultad
+		fields = (
+			'id',
+			'name',
+		)
+		depth = 1
+		read_only_fields = (
+			'id', 'deleted',
+			)
+
+	def __init__(self, *args, **kwargs):
+		self.is_update = kwargs.pop('is_update', False)
+		super(FacultadSerializer, self).__init__(*args, **kwargs)
+
+	def validate(self, data):
+		result = super(FacultadSerializer, self).validate(data)
+		return result
+
+
+class CarreraSerializer(serializers.ModelSerializer):
+	id = serializers.IntegerField(required=False)
+	faculty = FacultadSerializer(required=False)
+
+	class Meta:
+		model = Carrera
+		fields = (
+			'id',
+			'name',
+			'faculty',
+		)
+		depth = 1
+		read_only_fields = (
+			'id', 'deleted',
+			)
+
+	def __init__(self, *args, **kwargs):
+		self.is_update = kwargs.pop('is_update', False)
+		super(CarreraSerializer, self).__init__(*args, **kwargs)
+
+	def validate(self, data):
+		result = super(CarreraSerializer, self).validate(data)
+		return result
+
+
+class CicloSerializer(serializers.ModelSerializer):
+	id = serializers.IntegerField(required=False)
+	carrer = CarreraSerializer(required=False)
+
+	class Meta:
+		model = Ciclo
+		fields = (
+			'id',
+			'name',
+			'carrer',
+		)
+		depth = 1
+		read_only_fields = (
+			'id', 'deleted',
+			)
+
+	def __init__(self, *args, **kwargs):
+		self.is_update = kwargs.pop('is_update', False)
+		super(CicloSerializer, self).__init__(*args, **kwargs)
+
+	def validate(self, data):
+		result = super(CicloSerializer, self).validate(data)
+		return result
+

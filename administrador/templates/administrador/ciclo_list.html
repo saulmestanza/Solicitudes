@@ -14,7 +14,8 @@
                     <tr>
                         <th>#</th>
                         <th>Nombre</th>
-                        <th>Materias</th>
+                        <th>Carrera</th>
+                        <th>Estado</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
                     </tr>
@@ -25,10 +26,12 @@
                     <tr>
                         <td>{{ ciclo.id }}</td>
                         <td>{{ ciclo.name }}</td>
-                        <td>
-                        {% for materia in ciclo.subjects.all %}
-                            {{ materia.name }}
-                        {% endfor %}
+                        <td>{{ ciclo.carrer }}</td>
+                        <td>{% if not ciclo.deleted %}
+                            <spam class="label label-success">ACTIVO</spam>
+                            {% else %}
+                            <spam class="label label-default">INACTIVO</spam>
+                        {% endif %}
                         </td>
                         <td>
                             <a href="/administrador/ciclo-edit/{{ ciclo.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></i></a>

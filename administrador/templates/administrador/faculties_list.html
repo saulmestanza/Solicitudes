@@ -14,7 +14,7 @@
                     <tr>
                         <th>#</th>
                         <th>Nombre</th>
-                        <th>Carreras</th>
+                        <th>Estado</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
                     </tr>
@@ -25,10 +25,11 @@
                     <tr>
                         <td>{{ faculties.id }}</td>
                         <td>{{ faculties.name }}</td>
-                        <td>
-                        {% for carrera in faculties.carrer.all %}
-                            {{ carrera }}
-                        {% endfor %}
+                        <td>{% if not faculties.deleted %}
+                            <spam class="label label-success">ACTIVO</spam>
+                            {% else %}
+                            <spam class="label label-default">INACTIVO</spam>
+                        {% endif %}
                         </td>
                         <td>
                             <a href="/administrador/faculties-edit/{{ faculties.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></i></a>

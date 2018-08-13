@@ -58,11 +58,14 @@ class AlumnoForm(forms.ModelForm):
         self.instance.user.is_staff = False
         self.instance.user.username = email
         self.instance.user.set_password(email)
-        self.instance.user.is_active = is_active
+        if is_active:
+            self.instance.is_active = False
+        else:
+            self.instance.is_active = True
         user = self.instance.user
         user.save()
-        if Group.objects.filter(name='Alumno').exists():
-            user.groups.add( Group.objects.get(name='Alumno') )
+        if Group.objects.filter(name='Estudiantes').exists():
+            user.groups.add( Group.objects.get(name='Estudiantes') )
 
         self.instance.user = user
         super(AlumnoForm, self).save(*args, **kw)
@@ -96,8 +99,115 @@ class AlumnoForm(forms.ModelForm):
             'first_name',
             'last_name',
             'email',
-            'subjects',
+            'carrer',
             'is_active',
+            ]
+        exclude = ( 'user', )
+
+
+class AlumnoNewForm(forms.ModelForm):
+    READ_ONLY_FIELDS = []
+
+    required_css_class = 'required'
+    is_new = False
+
+    first_name = forms.CharField(label=u'Nombre', max_length=30)
+    last_name = forms.CharField(label=u'Apellido', max_length=30)
+    email = forms.EmailField(label=u'Email', max_length=254, required=True)
+    password = forms.CharField(widget=forms.PasswordInput(), label=_(u'Contraseña'), required=True)
+    confirm_password = forms.CharField(widget=forms.PasswordInput(), label=_(u'Confirmar contraseña'), required=True)
+    
+    def __init__(self, *args, **kw):
+        super(AlumnoNewForm, self).__init__(*args, **kw)
+        if not hasattr(self.instance, 'user'):
+            alumno_count = User.objects.filter(email__icontains='anonymous@cu.ucsg.edu.ec').count()
+            alumno_username = 'Alumno_%d'%(alumno_count + 1)
+            alumno_user = User(username=alumno_username)
+            alumno_user.set_password('blife2017cn')
+            self.instance.user = alumno_user 
+            self.is_new = True
+        self.fields['first_name'].initial = self.instance.user.first_name
+        self.fields['last_name'].initial = self.instance.user.last_name
+        self.fields['email'].initial = self.instance.user.email
+
+        self.fields['first_name'].widget.attrs['style'] = 'text-transform: capitalize;'
+        self.fields['last_name'].widget.attrs['style'] = 'text-transform: capitalize;'
+
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
+            if field in AlumnoNewForm.READ_ONLY_FIELDS:
+                self.fields[field].widget.attrs['readonly'] = 'readonly'
+                clean_method_name = "clean_%s" % field
+                assert clean_method_name not in dir(self)
+                setattr(self, clean_method_name, partial(self._clean_for_readonly_field, fname=field))
+
+    
+    def save(self, *args, **kw):
+        self.instance.user.first_name = self.cleaned_data.get('first_name').title()
+        self.instance.user.last_name = self.cleaned_data.get('last_name').title()
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+        self.instance.user.email = email
+        self.instance.user.is_staff = False
+        self.instance.user.username = email
+        self.instance.user.set_password(password)
+        self.instance.user.is_active = True
+        user = self.instance.user
+        user.save()
+        if Group.objects.filter(name='Estudiantes').exists():
+            user.groups.add( Group.objects.get(name='Estudiantes') )
+
+        self.instance.user = user
+        super(AlumnoNewForm, self).save(*args, **kw)
+        return AlumnoNewForm
+
+    
+    def as_plain(self):
+        "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
+        return self._html_output(
+            normal_row = '<p%(html_class_attr)s>%(label)s %(field)s%(help_text)s</p>',
+            error_row = '%s',
+            row_ender = '</p>',
+            help_text_html = ' <span class="helptext">%s</span>',
+            errors_on_separate_row = True)
+
+    def clean(self):
+        min_length = 7
+
+        cleaned_data = super(AlumnoNewForm, self).clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password != confirm_password:
+            self.add_error("password", "Contraseña y Confirmar Contraseña no son iguales")
+        elif len(password) < min_length:
+            self.add_error("password", ("Contraseña debe de tener {0} o más caracteres").format(min_length))
+        elif not any(char.isdigit() for char in password):
+            self.add_error("password", 'La contraseña debe contener al menos 1 dígito.')
+        elif not any(char.isalpha() for char in password):
+            self.add_error("password", 'La contraseña debe contener al menos 1 letra.')
+        return cleaned_data
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if '@cu.ucsg.edu.ec' in email:
+            return email
+        else:
+            raise forms.ValidationError("Ingrese un correo válido")
+
+    def _clean_for_readonly_field(self, fname):
+        return self.cleaned_data[fname]
+
+    
+    class Meta:
+        model = Alumno
+        fields = [
+            'user',
+            'first_name',
+            'last_name',
+            'email',
+            'carrer',
+            'password',
             ]
         exclude = ( 'user', )
 

@@ -100,10 +100,11 @@ class LockedOutView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(LockedOutView, self).get_context_data(**kwargs)
-        context['alert_message'] = {'class': 'info',
+        context['alert_message'] = {'class': 'alert alert-danger',
         'mod': _('Usuario Bloqueado:'),
         'message': _(u'El siguiente formulario permitirá desbloquear el usuario.')}
         context['tittle'] = _(u"Usuario Bloqueado")
+        context['motto'] = "El siguiente formulario permitirá desbloquear el usuario."
         return context
 
 
@@ -762,7 +763,7 @@ class CicloCreate(UserPassesTestMixin, CreateView):
     def form_valid(self, form):
         try:
             context = self.get_context_data()
-            if not Ciclo.objects.filter(name=form.instance.name).exists():
+            if not Ciclo.objects.filter(name=form.instance.name, carrer_id=form.instance.carrer_id).exists():
                 self.object = form.save()
                 response = super(CicloCreate, self).form_valid(form)
             else:
@@ -911,6 +912,9 @@ class MateriaCreate(UserPassesTestMixin, CreateView):
         context = super(MateriaCreate, self).get_context_data(**kwargs)
         context['tittle'] = "Materias"
         context['motto'] = "Formulario para crear nuevas Materias"
+        context['faculties'] = Facultad.objects.filter(deleted=False)
+        context['carrers'] = Carrera.objects.filter(deleted=False)
+        context['cicles'] = Ciclo.objects.filter(deleted=False)
         if self.request.POST:
             context['materia'] = MateriaForm(self.request.POST)
         else:
@@ -921,7 +925,7 @@ class MateriaCreate(UserPassesTestMixin, CreateView):
 class MateriaUpdate(UserPassesTestMixin, UpdateView):
     model = Materia
     form_class = MateriaForm
-    template_name = 'administrador/materia_create.html'
+    template_name = 'administrador/materia_edit.html'
     success_url = '/administrador/materia-list/'
 
     
@@ -942,14 +946,18 @@ class MateriaUpdate(UserPassesTestMixin, UpdateView):
     def get_object(self, queryset=None):
         if not Materia.objects.filter(id=self.kwargs['id']).exists():
             raise Http404
-        faculty = Materia.objects.get(id=self.kwargs['id'])
-        return faculty
+        subject = Materia.objects.get(id=self.kwargs['id'])
+        return subject
 
     
     def get_context_data(self, **kwargs):
         context = super(MateriaUpdate, self).get_context_data(**kwargs)
         context['tittle'] = "Materias"
         context['motto'] = "Formulario para editar materias existente"
+        context['faculties'] = Facultad.objects.filter(deleted=False)
+        context['carrers'] = Carrera.objects.filter(deleted=False)
+        context['cicles'] = Ciclo.objects.filter(deleted=False)
+        context['subject'] = self.get_object()
         if self.request.POST:
             context['materia'] = MateriaForm(self.request.POST)
         else:
@@ -1002,6 +1010,30 @@ class ProcesoListView(UserPassesTestMixin, ListView):
         context['tittle'] = "Procesos"
         context['motto'] = "Tabla para visualizar Procesos"
         context['table_id'] = "materia"
+        return context
+
+
+class ProcesoView(UserPassesTestMixin, ListView):
+    model = Proceso
+    template_name = 'administrador/proceso_view.html'
+
+    
+    def test_func(self):
+        return self.request.user.is_active
+
+    def get_object(self, queryset=None):
+        if not Proceso.objects.filter(id=self.kwargs['id']).exists():
+            raise Http404
+        _proceso_ = Proceso.objects.get(id=self.kwargs['id'])
+        return _proceso_
+    
+    def get_context_data(self, **kwargs):
+        context = super(ProcesoView, self).get_context_data(**kwargs)
+        proceso = self.get_object()
+        context['tittle'] = proceso.name
+        context['motto'] = "Detalle del Proceso %s"%(proceso.name)
+        context['table_id'] = "materia"
+        context['proceso'] = proceso
         return context
 
 

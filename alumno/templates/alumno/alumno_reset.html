@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isAlumno="true" %}
+{% endblock %}
+
+{% block content%}
+<form class="form-horizontal" action="" method="POST">
+    {% csrf_token %}
+    <div class="form-actions">
+    	<div id="id_description_div" class="form-group row email ">
+	        <label class="col-sm-2 form-control-label">Correo Electrónico:</label>
+	        <div class="col-sm-10">
+	            <input type="email" name="id_email" id="id_email" class="form-control" maxlength="128">
+	        </div>
+	    </div>
+        <div class="row text-center">
+            <input id="id_Guardar" class="btn btn-primary" type="submit" value="Recuperar Contraseña">
+        </div>
+    </div>
+</form>
+{% endblock%}

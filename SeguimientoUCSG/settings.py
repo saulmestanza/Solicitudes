@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     'captcha',
     'axes',
     'django_extensions',
+    'rest_framework',
     ######
     'administrador',
     'profesor',
     'alumno',
     'reporteria',
+    'webservices',
 ]
 
 MIDDLEWARE = [

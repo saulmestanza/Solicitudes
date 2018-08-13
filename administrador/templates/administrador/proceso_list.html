@@ -14,6 +14,8 @@
                     <tr>
                         <th>#</th>
                         <th>Nombre</th>
+                        <th>Estado</th>
+                        <th>Ver</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
                     </tr>
@@ -24,6 +26,15 @@
                     <tr>
                         <td>{{ proceso.id }}</td>
                         <td>{{ proceso.name }}</td>
+                        <td>{% if not proceso.deleted %}
+                            <spam class="label label-success">ACTIVO</spam>
+                            {% else %}
+                            <spam class="label label-default">INACTIVO</spam>
+                        {% endif %}
+                        </td>
+                        <td>
+                            <a href="/administrador/proceso-view/{{ proceso.id }}/"><i class="fa fa-eye eye " style="color:#00bcd4;" alt="edit"></i></a>
+                        </td>
                         <td>
                             <a href="/administrador/proceso-edit/{{ proceso.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></i></a>
                         </td>

@@ -183,11 +183,12 @@ input.ct-red + span.switch-left, input.ct-red + span + label + span.switch-right
     border-color: #999999 !important;
 }
 .btn-primary {
-    color: #3472F7 !important;
-    border-color: #3472F7 !important;
+    background-color: #660c0c !important;
+    border-color: #660c0c !important;
+    color: #FFF !important
 }
 .btn-info{
-     color: #2C93FF !important;
+    color: #2C93FF !important;
     border-color: #2C93FF !important;
 }
 .btn-success{
@@ -207,9 +208,9 @@ input.ct-red + span.switch-left, input.ct-red + span + label + span.switch-right
     opacity: 1;
 }
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
-    color: #1D62F0 !important;
-    border-color: #1D62F0 !important;
-    background-color: rgba(0,0,0,.0);
+    background-color: #660c0c;
+    border-color: #660c0c !important;
+    color: #FFF !important
 }
 .btn-info:hover, .btn-info:focus, .btn-info:active, .btn-info.active, .open .dropdown-toggle.btn-info {
     color: #1084FF !important;
@@ -246,7 +247,7 @@ input.ct-red + span.switch-left, input.ct-red + span + label + span.switch-right
 }
 .btn-primary.disabled, .btn-primary[disabled], fieldset[disabled] .btn-primary, .btn-primary.disabled:hover, .btn-primary[disabled]:hover, fieldset[disabled] .btn-primary:hover, .btn-primary.disabled:focus, .btn-primary[disabled]:focus, fieldset[disabled] .btn-primary:focus, .btn-primary.disabled:active, .btn-primary[disabled]:active, fieldset[disabled] .btn-primary:active, .btn-primary.disabled.active, .btn-primary.active[disabled], fieldset[disabled] .btn-primary.active {
     background-color: rgba(0, 0, 0, 0);
-    border-color: #3472F7 !important;
+    border-color: #935454 !important;
 }
 .btn-info.disabled, .btn-info[disabled], fieldset[disabled] .btn-info, .btn-info.disabled:hover, .btn-info[disabled]:hover, fieldset[disabled] .btn-info:hover, .btn-info.disabled:focus, .btn-info[disabled]:focus, fieldset[disabled] .btn-info:focus, .btn-info.disabled:active, .btn-info[disabled]:active, fieldset[disabled] .btn-info:active, .btn-info.disabled.active, .btn-info.active[disabled], fieldset[disabled] .btn-info.active {
     background-color: rgba(0, 0, 0, 0);

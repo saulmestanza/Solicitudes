@@ -50,6 +50,7 @@ urlpatterns = [
 
 	url(r'^proceso-list/$', views.ProcesoListView.as_view(), name='administrador-proceso-list'),
 	url(r'^proceso-new/$', views.ProcesoCreate.as_view(), name='administrador-proceso-new'),
+	url(r'^proceso-view/(?P<id>[\d\-]+)/$', views.ProcesoView.as_view(), name='administrador-proceso-view'),
 	url(r'^proceso-edit/(?P<id>[\d\-]+)/$', views.ProcesoUpdate.as_view(), name='administrador-proceso-edit'),
 	url(r'^proceso-delete/(?P<id>[\d\-]+)/$', views.ProcesoDelete.as_view(), name='administrador-proceso-delete'),
 	
