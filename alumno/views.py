@@ -281,7 +281,7 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
 
     def send_mail_to_user(self, alumno, profesor, proceso_alumno, historial, request):
         _user_ = User.objects.filter(is_superuser=True).first()
-        if 'Examen' in proceso_alumno.process.name:
+        if 'Gracia' in proceso_alumno.process.name:
             _to_ = [alumno.user.email, _user_.email]
         else:
             _to_ = [alumno.user.email, profesor.user.email, _user_.email]
@@ -338,7 +338,7 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
             )
             historial.save()
 
-            if 'Examen' in proceso_alumno.process.name:
+            if 'Gracia' in proceso_alumno.process.name:
                 if clean['input_nota_0']:
                     nota = Nota.objects.create(
                         profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
@@ -454,7 +454,7 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
 
     def send_mail(self, alumno, profesor, proceso_alumno, request):
         _user_ = User.objects.filter(is_superuser=True).first()
-        if 'Examen' in proceso_alumno.process.name:
+        if 'Gracia' in proceso_alumno.process.name:
             _to_ = [alumno.user.email, _user_.email]
         else:
             _to_ = [alumno.user.email, profesor.user.email, _user_.email]
@@ -542,7 +542,7 @@ class HistorialCreateView(UserPassesTestMixin, CreateView):
 
     def send_mail(self, alumno, profesor, proceso_alumno, historial, request):
         _user_ = User.objects.filter(is_superuser=True).first()
-        if 'Examen' in proceso_alumno.process.name:
+        if 'Gracia' in proceso_alumno.process.name:
             _to_ = [alumno.user.email, _user_.email]
         else:
             _to_ = [alumno.user.email, profesor.user.email, _user_.email]

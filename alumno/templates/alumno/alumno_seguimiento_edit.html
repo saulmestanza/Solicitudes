@@ -18,7 +18,7 @@
     	});
     	$('#id_status').change(function(){
     		if(document.getElementById('id_status').value == 'FN'){
-    			{% if 'Examen' in proceso_alumno.process.name %}
+    			{% if 'Gracia' in proceso_alumno.process.name %}
     				console.log('d');
     				document.getElementById('id_input_nota_0_div').style.display = "";
     			{% else %}

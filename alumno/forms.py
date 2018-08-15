@@ -248,7 +248,7 @@ class ProcesoAlumnoForm(forms.ModelForm):
         process = Proceso.objects.get(pk=process_id)
         self.instance.process = process
 
-        if 'Examen' in process.name:
+        if 'Gracia' in process.name:
             self.instance.parcial = ""
 
         alumn_id = self.cleaned_data.get('alumn_id')
