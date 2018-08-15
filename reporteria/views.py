@@ -105,6 +105,13 @@ class ReporteriaEstadisticasCreateView(PermissionRequiredMixin, CreateView):
         context['tittle'] = "Repoteria"
         context['carrers'] = Carrera.objects.filter(deleted=False)
         context['periodos'] = Periodo.objects.filter(deleted=False)
+        context['materias'] = Materia.objects.filter(deleted=False)
+        if not self.request.user.is_staff and not self.request.user.is_superuser:
+            profesor = Profesor.objects.filter(user=self.request.user).first()
+            context['profesor'] = profesor
+        else:
+            context['profesor'] = None
+        context['profesores'] = Profesor.objects.filter(deleted=False)
         context['proceso_alumno'] = ProcesoAlumno.objects.filter(status='FN')
         context['motto'] = "Reporteria Estadísticas"
         return context

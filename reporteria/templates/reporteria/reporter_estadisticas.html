@@ -28,6 +28,36 @@
             </select>
         </div>
     </div>
+    {% if user.is_staff or user.is_superuser %}
+    <div id="id_process_div" class="form-group row carrer ">
+        <label class="col-sm-2 form-control-label">*Profesor:</label>
+        <div class="col-sm-10">
+            <select name="carrer" required="" class="form-control" id="id_profesor">
+                <option value="" selected="">---------</option>
+                {% for profesor in profesores %}
+                <option value="{{ profesor.id }}">{{ profesor }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    {% endif %}
+    <div id="id_process_div" class="form-group row carrer ">
+        <label class="col-sm-2 form-control-label">*Materia:</label>
+        <div class="col-sm-10">
+            <select name="carrer" required="" class="form-control" id="id_materia">
+                <option value="" selected="">---------</option>
+                {% for materia in materias %}
+                    {% if user.is_staff or user.is_superuser %}
+                        <option value="{{ materia.id }}">{{ materia }}</option>
+                    {% else %}
+                        {% if materia in profesor.subjects.all %}
+                            <option value="{{ materia.id }}">{{ materia }}</option>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
     <div id="id_process_div" class="form-group row periodo ">
         <label class="col-sm-2 form-control-label">*Periodo:</label>
         <div class="col-sm-10">
