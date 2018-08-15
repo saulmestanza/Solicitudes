@@ -496,7 +496,7 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
             historial = Historial.objects.create(
                 process_alumno = proceso_alumno,
                 status = proceso_alumno.status_verbose(),
-                description = "Tramite %s Ingresado por el Alumno %s %s"%(
+                description = "Trámite %s Ingresado por el Alumno %s %s"%(
                     proceso_alumno.process.name,
                     alumno.user.first_name,
                     alumno.user.last_name
