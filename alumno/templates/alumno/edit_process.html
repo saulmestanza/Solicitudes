@@ -286,7 +286,26 @@
                     <tr>
                       <td>
                         <p>Hola, {{ alumno.user.first_name }} {{ alumno.user.last_name }} se ha cambiado el estado del trámite {{ proceso_alumno }} el día de {{ today }} al estado {{ proceso_alumno.status_verbose }}.</p>
-                        <p> Se ha enviado una copia de este correo al profesor de la materia {{ profesor.user.first_name }} {{ profesor.user.last_name }} y a Coordinación Académica 1.</p>
+
+                        <p>También se ha agregado la siguiente información</p>
+                        <li>
+                          <ul>{{ historial.description }}</ul>
+                        </li>
+
+                        {% if proceso_alumno.notes.all %}
+                          <li>
+                          {% for nota in proceso_alumno.notes.all %}
+                            <ul>Nota: {{ nota.nota }}</ul>
+                          {% endfor %}
+                          </li>
+                        {% endif %}
+
+                        {% if 'Examen' in proceso_alumno.process.name %}
+                          <p> Se ha enviado una copia de este correo a Coordinación Académica 1.</p>
+                        {% else %}
+                          <p> Se ha enviado una copia de este correo al profesor de la materia, {{ profesor.user.first_name }} {{ profesor.user.last_name }}, y a Coordinación Académica 1.</p>
+                        {% endif %}
+
                         <p>Para saber el estado de su trámite ingrese a la siguiente <a href="{{ link }}">página</a>, también se enviará notificaciones por este medio a todos los involucrados.</p>
                         <p>¡Muchas gracias!</p>
                       </td>

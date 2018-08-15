@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-
+import raven
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'axes',
     'django_extensions',
     'rest_framework',
+    'raven.contrib.django.raven_compat',
     ######
     'administrador',
     'profesor',
@@ -173,4 +174,12 @@ EMAIL_HOST_PASSWORD = '7UghzqGUd!mPfnEvFXpvVJSt$d5e!YUS'
 
 EMAIL_PORT = 587
 
+# Sentry Settings
+
+RAVEN_CONFIG = {
+    'dsn': 'https://3c681a89e61f48e099f2446f90c8dc74:dbcbd9b5aa21413e9fd2a3efb5b066af@sentry.io/1261575',
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(os.path.abspath(BASE_DIR)),
+}
 

@@ -29,6 +29,7 @@ from administrador.models import *
 import json
 import random
 import string
+import os
 
 # Create your views here.
 class AlumnoListView(UserPassesTestMixin, ListView):
@@ -100,6 +101,9 @@ class AlumnoCreateView(PermissionRequiredMixin, CreateView):
                 response = super(AlumnoCreateView, self).form_valid(form)
                 _user_id_ = form.instance.user.id
                 user = User.objects.filter(pk=_user_id_).first()
+                alumno = Alumno.objects.filter(user=user).first()
+                alumno.is_active = True
+                alumno.save()
                 self.send_mail_to_user(user, self.request)
         except Exception, e:
             print 'Error', e
@@ -143,6 +147,11 @@ class AlumnoUpdateView(PermissionRequiredMixin, UpdateView):
         clean = form.cleaned_data
         try:
             response = super(AlumnoUpdateView, self).form_valid(form)
+            _user_id_ = form.instance.user.id
+            user = User.objects.filter(pk=_user_id_).first()
+            alumno = Alumno.objects.filter(user=user).first()
+            alumno.is_active = True
+            alumno.save()
         except Exception, e:
             print e
             errors = form._errors.setdefault("email", ErrorList())
@@ -225,81 +234,75 @@ class AlumnoDeleteView(PermissionRequiredMixin, DeleteView):
         return self.post(request, args, kwargs)
 
 
-class AlumnoProcesosListView(UserPassesTestMixin, ListView):
+## SEGUIMIENTO 
+class AlumnoSeguimientoListView(UserPassesTestMixin, ListView):
     model = ProcesoAlumno
-    template_name = 'alumno/alumno_historial.html'
+    template_name = 'alumno/alumno_seguimiento.html'
+    profesor = None
 
-    
     def test_func(self):
         return self.request.user
 
     def get_queryset(self):
         if self.request.user.is_superuser:
-            return super(AlumnoProcesosListView, self).get_queryset().all()
+            return super(AlumnoSeguimientoListView, self).get_queryset().all()
         else:
-            return super(AlumnoProcesosListView, self).get_queryset().filter(alumn_id=self.request.user.alumno.id)
+            if Alumno.objects.filter(user__username=self.request.user.username).exists():
+                return super(AlumnoSeguimientoListView, self).get_queryset().filter(alumn_id=self.request.user.alumno.id)
+            else:
+                if Profesor.objects.filter(user__username=self.request.user.username).exists():
+                    self.profesor = Profesor.objects.filter(user__username=self.request.user.username).first()
+                    return super(AlumnoSeguimientoListView, self).get_queryset().all()
+                else:
+                    raise Http404
     
     def get_context_data(self, **kwargs):
-        context = super(AlumnoProcesosListView, self).get_context_data(**kwargs)
+        context = super(AlumnoSeguimientoListView, self).get_context_data(**kwargs)
         context['tittle'] = "Seguimiento de Trámites"
         context['motto'] = "Bandeja de seguimiento"
         context['procesos'] = Proceso.objects.filter(deleted=False)
-        context['table_id'] = "alumno"
+        context['table_id'] = "proceso_alumno"
+        context['profesor'] = self.profesor
         context['historial'] = Historial.objects.filter(deleted=False)
         context['carreras'] = Carrera.objects.filter(deleted=False)
         context['periodo'] = Periodo.objects.filter(deleted=False).first()
         return context
 
 
-class ProcesoAlumnoCreateView(CreateView):
-    model = ProcesoAlumno
-    form_class = ProcesoAlumnoForm
-
-    def post(self, request):
-        if request.method == "POST":
-            form = ProcesoAlumnoForm(request.POST)
-            message = 'something wrong!'
-            # process_id = request
-            if(form.is_valid()):
-                form.save()
-                procesos = ProcesoAlumno.objects.latest('id')
-                serializer = ProcesoAlumnoSerializer(procesos)
-                return HttpResponse(json.dumps({'items': serializer.data}))
-            else:
-                print form.errors
-                return HttpResponse(json.dumps({'message': message}))
-        return HttpResponse(json.dumps({'message': message}))
-
-
-class ProcesoAlumnoEditView(PermissionRequiredMixin, UpdateView):
+class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
     model = ProcesoAlumno
     form_class = ProcesoAlumnoCompleteForm
 
-    template_name = 'alumno/alumno_edit.html'
+    template_name = 'alumno/alumno_seguimiento_edit.html'
     success_url = '/alumno/alumno-seguimiento/'
     permission_required = (
-        'reporteria.add_reporter',
+        'alumno.add_procesoalumno',
     )
 
-    def send_mail_to_user(self, alumno, profesor, proceso_alumno, request):
+    def send_mail_to_user(self, alumno, profesor, proceso_alumno, historial, request):
+        _user_ = User.objects.filter(is_superuser=True).first()
+        if 'Examen' in proceso_alumno.process.name:
+            _to_ = [alumno.user.email, _user_.email]
+        else:
+            _to_ = [alumno.user.email, profesor.user.email, _user_.email]
         context = {
             'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
             'site_name': 'Seguimiento UCSG',
             'protocol': 'https',
             'alumno': alumno,
             'profesor': profesor,
+            'historial': historial,
             'proceso_alumno': proceso_alumno,
             'today':datetime.today(),
-            'link': reverse('alumno-seguimiento'),
+            'link': "%s%s%s"%('http://', request.META['HTTP_HOST'], reverse('alumno-seguimiento')),
         }
-        _user_ = User.objects.filter(is_superuser=True).first()
         email_template_name = 'alumno/edit_process.html'
         subject = proceso_alumno
         email = loader.get_template(email_template_name).render(context)
         email_message = EmailMessage(
             subject,
             email,
-            to=[alumno.user.email, profesor.user.email, _user_.email],
+            to=_to_,
             from_email=settings.DEFAULT_FROM_EMAIL
         )
         email_message.content_subtype = 'html'
@@ -311,47 +314,98 @@ class ProcesoAlumnoEditView(PermissionRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         if not ProcesoAlumno.objects.filter(pk=self.kwargs['id']).exists():
             raise Http404
-        proceso = ProcesoAlumno.objects.get(pk=self.kwargs['id'])
-        if proceso.deleted:
+        proceso_alumno = ProcesoAlumno.objects.get(pk=self.kwargs['id'])
+        if proceso_alumno.deleted:
             raise Http404
-        return proceso
+        return proceso_alumno
 
     def form_valid(self, form):
         clean = form.cleaned_data
+        description =  clean['description']
+        document = clean['documento']
         try:
-            response = super(ProcesoAlumnoEditView, self).form_valid(form)
-
+            response = super(AlumnoSeguimientoItemUpdateView, self).form_valid(form)
             proceso_alumno = ProcesoAlumno.objects.filter(pk=self.kwargs['id']).first()
             alumno = Alumno.objects.filter(pk=proceso_alumno.alumn_id).first()
             materia = Materia.objects.filter(name=proceso_alumno.subject).first()
             profesor = Profesor.objects.filter(subjects=materia).first()
-
             historial = Historial.objects.create(
-                process=proceso_alumno, 
-                name="Tramite en Estado %s"%(proceso_alumno.status_verbose()), 
-                description="Tramite en Estado %s"%(proceso_alumno.status_verbose()),
-                reviewed_by = ("%s %s")%(self.request.user.first_name, self.request.user.last_name),
-                approved_by = ("%s %s")%(self.request.user.first_name, self.request.user.last_name),
+                process_alumno=proceso_alumno, 
+                status = proceso_alumno.status_verbose(),
+                description=description,
+                document=document,
+                created_by = ("%s %s")%(self.request.user.first_name, self.request.user.last_name)
             )
             historial.save()
-            
-            self.send_mail_to_user(alumno, profesor, proceso_alumno, self.request)
 
+            if 'Examen' in proceso_alumno.process.name:
+                if clean['input_nota_0']:
+                    nota = Nota.objects.create(
+                        profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
+                        nota = clean['input_nota_0']
+                    )
+                    nota.save()
+                    if not (nota in proceso_alumno.notes.all()):
+                        proceso_alumno.notes.add(nota)
+            else:
+                if clean['input_nota_0']:
+                    nota = Nota.objects.create(
+                        profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
+                        nota = clean['input_nota_0']
+                    )
+                    nota.save()
+                    if not (nota in proceso_alumno.notes.all()):
+                        proceso_alumno.notes.add(nota)
+                    nota = Nota.objects.create(
+                        profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
+                        nota = clean['input_nota_1']
+                    )
+                    nota.save()
+                    if not (nota in proceso_alumno.notes.all()):
+                        proceso_alumno.notes.add(nota)
+                    nota = Nota.objects.create(
+                        profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
+                        nota = clean['input_nota_2']
+                    )
+                    nota.save()
+                    if not (nota in proceso_alumno.notes.all()):
+                        proceso_alumno.notes.add(nota)
+            self.send_mail_to_user(alumno, profesor, proceso_alumno, historial, self.request)
         except Exception, e:
             print e
             errors = form._errors.setdefault("error", ErrorList())
-            errors.append(u"Ya existe un usuario registrado con este email")
-            response = super(ProcesoAlumnoEditView, self).form_invalid(form)
+            response = super(AlumnoSeguimientoItemUpdateView, self).form_invalid(form)
         return response
 
     def form_invalid(self, form):
-        return super(ProcesoAlumnoEditView, self).form_invalid(form)
+        return super(AlumnoSeguimientoItemUpdateView, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
-        context = super(ProcesoAlumnoEditView, self).get_context_data(**kwargs)
-        context['tittle'] = "Proceso"
-        context['motto'] = "Formulario para editar Procesos de Alumnos"
+        context = super(AlumnoSeguimientoItemUpdateView, self).get_context_data(**kwargs)
+        context['tittle'] = "Seguimiento de Trámites"
+        context['proceso_alumno'] = self.get_object()
+        context['profesor'] = Profesor.objects.filter(subjects=self.get_object().subject.id).first()
+        context['motto'] = "Bandeja de seguimiento - Editar"
         return context
+
+
+class ProcesoAlumnoCreateView(CreateView):
+    model = ProcesoAlumno
+    form_class = ProcesoAlumnoForm
+
+    def post(self, request):
+        if request.method == "POST":
+            form = ProcesoAlumnoForm(request.POST)
+            message = ''
+            if(form.is_valid()):
+                form.save()
+                procesos = ProcesoAlumno.objects.latest('id')
+                serializer = ProcesoAlumnoSerializer(procesos)
+                return HttpResponse(json.dumps({'items': serializer.data}))
+            else:
+                print form.errors
+                return HttpResponse(json.dumps({'message': message}))
+        return HttpResponse(json.dumps({'message': message}))
 
 
 class ProcesoAlumnoItemsCreateView(CreateView):
@@ -374,6 +428,17 @@ class ProcesoAlumnoItemsCreateView(CreateView):
         return HttpResponse(json.dumps({'message': message}))
 
 
+class ProcesoAlumnoItemsDeleteView(CreateView):
+    model = ProcesoAlumnoItems
+    form_class = ProcesoAlumnoItemsForm
+
+    def post(self, request, id):
+        if request.method == "POST":
+            procesoalumnoitem = ProcesoAlumnoItems.objects.filter(pk=id)
+            procesoalumnoitem.delete()
+        return HttpResponse(json.dumps({'message': 'ok'}))
+
+
 class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
     model = ProcesoAlumno
     fields = '__all__'
@@ -382,9 +447,18 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
 
     
     def test_func(self):
-        return self.request.user.is_active
+        if self.request.user.is_superuser:
+            raise Http404
+        else:
+            return self.request.user.is_active
 
-    def send_mail_to_user(self, alumno, profesor, proceso_alumno, request):
+    def send_mail(self, alumno, profesor, proceso_alumno, request):
+        _user_ = User.objects.filter(is_superuser=True).first()
+        if 'Examen' in proceso_alumno.process.name:
+            _to_ = [alumno.user.email, _user_.email]
+        else:
+            _to_ = [alumno.user.email, profesor.user.email, _user_.email]
+        procesoalumnoitem = ProcesoAlumnoItems.objects.filter(process_alumno_id = proceso_alumno.id)
         context = {
             'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
             'site_name': 'Seguimiento UCSG',
@@ -392,17 +466,17 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
             'alumno': alumno,
             'profesor': profesor,
             'proceso_alumno': proceso_alumno,
+            'proceso_alumno_items': procesoalumnoitem,
             'today':datetime.today(),
-            'link': reverse('alumno-seguimiento'),
+            'link': "%s%s%s"%('http://', request.META['HTTP_HOST'], reverse('alumno-seguimiento')),
         }
-        _user_ = User.objects.filter(is_superuser=True).first()
         email_template_name = 'alumno/create_process.html'
         subject = proceso_alumno
         email = loader.get_template(email_template_name).render(context)
         email_message = EmailMessage(
             subject,
             email,
-            to=[alumno.user.email, profesor.user.email, _user_.email],
+            to=_to_,
             from_email=settings.DEFAULT_FROM_EMAIL
         )
         email_message.content_subtype = 'html'
@@ -419,10 +493,19 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
             materia = Materia.objects.filter(name=proceso_alumno.subject).first()
             profesor = Profesor.objects.filter(subjects=materia).first()
 
-            historial = Historial.objects.create(process=proceso_alumno, name="Tramite Ingresado", description="Tramite Ingresado por el Alumno %s %s"%(alumno.user.first_name, alumno.user.last_name))
+            historial = Historial.objects.create(
+                process_alumno = proceso_alumno,
+                status = proceso_alumno.status_verbose(),
+                description = "Tramite %s Ingresado por el Alumno %s %s"%(
+                    proceso_alumno.process.name,
+                    alumno.user.first_name,
+                    alumno.user.last_name
+                ),
+                created_by = "%s %s"%(alumno.user.first_name, alumno.user.last_name)
+            )
             historial.save()
-            
-            self.send_mail_to_user(alumno, profesor, proceso_alumno, request)
+
+            self.send_mail(alumno, profesor, proceso_alumno, request)
         return HttpResponseRedirect(reverse('alumno-seguimiento'))
     
     def get_context_data(self, **kwargs):
@@ -430,17 +513,14 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
         context['tittle'] = "Crear Solicitud"
         context['motto'] = "Llene todos los datos"
 
-        context['periodos'] = Periodo.objects.all()
+        context['periodos'] = Periodo.objects.filter(deleted=False)
         context['procesos'] = Proceso.objects.all()
         context['ciclos'] = Ciclo.objects.all()
         context['carreras'] = Carrera.objects.all()
+        context['materias'] = Materia.objects.all()
 
-        if self.request.user.is_superuser:
-            context['materias'] = Materia.objects.all()
-            context['alumnos'] = Alumno.objects.all()
-        else:
-            alumno = Alumno.objects.filter(user=self.request.user).first()
-            context['materias'] = alumno.subjects.all()
+        alumno = Alumno.objects.filter(user=self.request.user).first()
+        context['alumno'] = alumno
 
         form = context['form']
         for field in form.fields:
@@ -450,7 +530,104 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
                 form.fields[field].widget.attrs['data-placement'] = 'top'
                 form.fields[field].widget.attrs['title'] = form.fields[field].help_text
         return context
-    
+   
+
+## Historial List y Edit 
+
+
+class HistorialCreateView(UserPassesTestMixin, CreateView):
+    form_class = HistorialForm
+    success_url = '/alumno/alumno-seguimiento/'
+    template_name = 'alumno/alumno_historial.html'
+
+    def send_mail(self, alumno, profesor, proceso_alumno, historial, request):
+        _user_ = User.objects.filter(is_superuser=True).first()
+        if 'Examen' in proceso_alumno.process.name:
+            _to_ = [alumno.user.email, _user_.email]
+        else:
+            _to_ = [alumno.user.email, profesor.user.email, _user_.email]
+        context = {
+            'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
+            'site_name': 'Seguimiento UCSG',
+            'protocol': 'https',
+            'alumno': alumno,
+            'profesor': profesor,
+            'historial': historial,
+            'proceso_alumno': proceso_alumno,
+            'today':datetime.today(),
+            'link': "%s%s%s"%('http://', request.META['HTTP_HOST'], reverse('alumno-seguimiento')),
+        }
+        email_template_name = 'alumno/edit_process.html'
+        subject = proceso_alumno
+        email = loader.get_template(email_template_name).render(context)
+        email_message = EmailMessage(
+            subject,
+            email,
+            to=_to_,
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        email_message.content_subtype = 'html'
+        email_message.send(fail_silently=False)
+
+    def test_func(self):
+        return self.request.user.is_active
+
+    def form_valid(self, form):
+        try:
+            context = self.get_context_data()
+            self.object = form.save()
+            response = super(HistorialCreateView, self).form_valid(form)
+            
+            historial = Historial.objects.filter(pk=form.instance.id).first()
+            proceso_alumno = ProcesoAlumno.objects.filter(pk=self.kwargs['id']).first()
+            alumno = proceso_alumno.alumn
+            materia = Materia.objects.filter(name=proceso_alumno.subject).first()
+            profesor = Profesor.objects.filter(subjects=materia).first()
+            self.send_mail(alumno, profesor, proceso_alumno, historial, self.request)
+
+        except Exception as e:
+            print e
+            errors = form._errors.setdefault("name", ErrorList())
+            response = super(HistorialCreateView, self).form_invalid(form)
+        return response
+
+    def form_invalid(self, form):
+        return super(HistorialCreateView, self).form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(HistorialCreateView, self).get_context_data(**kwargs)
+        context['tittle'] = "Seguimiento de Trámites"
+        context['motto'] = "Bandeja de seguimiento - Historial"
+        context['process_alumno'] = ProcesoAlumno.objects.filter(pk=self.kwargs['id']).first()
+        context['historials'] = Historial.objects.filter(process_alumno_id=self.kwargs['id'])
+        return context
+
+
+## Stram files
+
+
+class HistorialStreamFilesView(View):
+    model = Historial
+
+    def get_object(self):
+        id = self.kwargs['id']
+        if not self.model.objects.filter(id=id).exists():
+            raise Http404
+        historial = self.model.objects.get(id=id)
+        return historial
+
+    def get(self, request, *args, **kwargs):
+        historial = self.get_object()
+        if historial.document:
+            document = historial.document.read()
+            _split_ = os.path.splitext(str(historial.document))
+            print "application/"+_split_[1][1:]
+            return HttpResponse(document, content_type="application/"+_split_[1][1:])
+        raise Http404
+
+
+# Alumno Crear Cuenta y Activación
+
 
 class AlumnoNewCreateView(CreateView):
     form_class = AlumnoNewForm

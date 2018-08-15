@@ -1,5 +1,6 @@
 import os, sys, site
 
+from raven.contrib.django.raven_compat.middleware.wsgi import Sentry
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SeguimientoUCSG.settings")
@@ -15,4 +16,4 @@ try:
 except Exception as e:
     print e
 
-application = get_wsgi_application()
+application = Sentry(get_wsgi_application())

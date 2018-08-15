@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "navbar.html" with isAlumno="true" %}
+{% endblock %}
+
+        {% block content %}
+        <div id="buscador">
+            <label for="id_procesos">Elija tipo de Proceso para una mejor búsqueda</label>
+            <select id="id_procesos" class="form-control">
+                <option value="0">Todos</option>
+            {% for proceso in procesos %}
+                <option value="{{ proceso.id }}">{{ proceso.name }}</option>
+            {% endfor %}
+            </select>
+
+            {% if perms.reporteria.add_reporter %}
+            <hr>
+
+            <label for="id_carreras">Elija la Carrera para una mejor búsqueda</label>
+            <select id="id_carreras" class="form-control">
+                <option value="0">Todos</option>
+            {% for carrera in carreras %}
+                <option value="{{ carrera.id }}">{{ carrera.name }}</option>
+            {% endfor %}
+            </select>
+
+            {% endif %}
+        </div>
+        <hr>
+        <div class="table-responsive">
+            <table id="{{ table_id }}" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th># Solicitud</th>
+                        <th>Tipo</th>
+                        {% if perms.reporteria.add_reporter %}
+                            <th>Alumno</th>
+                            <th>Carrera</th>
+                        {% endif %}
+                        <th>Materia</th>
+                        <th>Periodo</th>
+                        <th>Estado</th>
+                        <th>Fecha Inicio</th>
+                        <th>Historial</th>
+
+                      {% if perms.reporteria.add_reporter %}
+                        <th>Editar</th>
+                      {% endif %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for proceso_alumno in object_list %}
+                      {% if profesor %}
+                        {% if proceso_alumno.subject in profesor.subjects.all %}
+                          <tr>
+                              <td>{{proceso_alumno.id}}</td>
+                              <td>{{proceso_alumno.process.name}}</td>
+
+                              {% if perms.reporteria.add_reporter %}
+                                  <td>{{proceso_alumno.alumn}}</td>
+                                  <td>{{proceso_alumno.alumn.carrer}}</td>
+                              {% endif %}
+
+                              <td>{{proceso_alumno.subject}}</td>
+                              <td>{{proceso_alumno.periodo}}</td>
+
+                              <td>{{proceso_alumno.status_verbose}}</td>
+                              <td>{{proceso_alumno.creation_date}}</td>
+
+                              <td><a href="/alumno/alumno-seguimiento-historial/{{ proceso_alumno.id }}/"><i class="fa fa-eye  eye " style="color:#ff4d4d;" alt="view"></a></td>
+                             
+                            {% if perms.reporteria.add_reporter %}
+                              <td><a href="/alumno/alumno-seguimiento-edit/{{ proceso_alumno.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></a></td>
+                            {% endif %}
+                          </tr>
+                        {% endif %}
+                      {% else %}
+                        <tr>
+                          <td>{{proceso_alumno.id}}</td>
+                          <td>{{proceso_alumno.process.name}}</td>
+
+                          {% if perms.reporteria.add_reporter %}
+                              <td>{{proceso_alumno.alumn}}</td>
+                              <td>{{proceso_alumno.alumn.carrer}}</td>
+                          {% endif %}
+
+                          <td>{{proceso_alumno.subject}}</td>
+                          <td>{{proceso_alumno.periodo}}</td>
+
+                          <td>{{proceso_alumno.status_verbose}}</td>
+                          <td>{{proceso_alumno.creation_date}}</td>
+
+                          <td><a href="/alumno/alumno-seguimiento-historial/{{ proceso_alumno.id }}/"><i class="fa fa-eye  eye " style="color:#ff4d4d;" alt="view"></a></td>
+                         
+                        {% if perms.reporteria.add_reporter %}
+                          <td><a href="/alumno/alumno-seguimiento-edit/{{ proceso_alumno.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></a></td>
+                        {% endif %}
+                      </tr>
+                      {% endif %}
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+
+        <script type="text/javascript">
+        $(document).ready(function(){
+
+            postsTable = $('#{{ table_id }}').dataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.12/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "responsivePriority": 1, "targets": 0 },
+                    { "responsivePriority": 2, "targets": [-1, -2] },
+                ],
+                "pagingType": "full_numbers",
+                "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                    $(nRow).attr('id', aData[0]);
+                }
+            });
+
+            $("#id_procesos").change(function(){
+              oTable = $('#{{ table_id }}').DataTable();
+              var procesos = $("#id_procesos :selected").text();
+              if(procesos=="Todos"){
+                procesos="";
+              }
+              {% if user.is_superuser %}
+              var id_carreras = $("#id_carreras :selected").text();
+              if(id_carreras=="Todos"){
+                id_carreras="";
+              }
+              oTable.column(1).search(procesos).column(3).search(id_carreras).draw();
+              {% else %}
+              oTable.column(1).search(procesos).draw();
+              {% endif %}
+            });
+
+            $("#id_carreras").change(function(){
+              oTable = $('#{{ table_id }}').DataTable();
+              var procesos = $("#id_procesos :selected").text();
+              if(procesos=="Todos"){
+                procesos="";
+              }
+              {% if user.is_superuser %}
+              var id_carreras = $("#id_carreras :selected").text();
+              if(id_carreras=="Todos"){
+                id_carreras="";
+              }
+              oTable.column(1).search(procesos).column(3).search(id_carreras).draw();
+              {% else %}
+              oTable.column(1).search(procesos).draw();
+              {% endif %}
+            });
+        });
+        </script>
+
+        {% endblock%}

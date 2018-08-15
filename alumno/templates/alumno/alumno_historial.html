@@ -4,186 +4,54 @@
     {% include "navbar.html" with isAlumno="true" %}
 {% endblock %}
 
-        {% block content %}
-        <div id="buscador">
-            <label for="id_procesos">Elija tipo de Proceso para una mejor búsqueda</label>
-            <select id="id_procesos" class="form-control">
-                <option value="0">Todos</option>
-            {% for proceso in procesos %}
-                <option value="{{ proceso.id }}">{{ proceso.name }}</option>
+{% block content %}
+	<div class="well">
+		{% if process_alumno.notes.all %}
+            <p>Notas:</p>
+            {% for nota in process_alumno.notes.all %}
+            	<p>Nota: {{ nota.nota }}</p>
             {% endfor %}
-            </select>
-
-            {% if perms.reporteria.add_reporter %}
-            <hr>
-
-            <label for="id_carreras">Elija la Carrera para una mejor búsqueda</label>
-            <select id="id_carreras" class="form-control">
-                <option value="0">Todos</option>
-            {% for carrera in carreras %}
-                <option value="{{ carrera.id }}">{{ carrera.name }}</option>
-            {% endfor %}
-            </select>
-
-            {% endif %}
-        </div>
+        {% endif %}
         <hr>
-        <div class="table-responsive">
-            <table id="{{ table_id }}" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th># Solicitud</th>
-                        <th>Tipo</th>
-                        {% if perms.reporteria.add_reporter %}
-                            <th>Alumno</th>
-                            <th>Carrera</th>
-                        {% endif %}
-                        
-                        <th>Periodo</th>
-                        <th>Estado</th>
-                        <th>Fecha Inicio</th>
-                        <th>Historial</th>
+		{% for historial in historials %}
+			<div class="row">
+				<div class="col-lg-12">
+					<p><b>Estado :</b> {{ historial.status }}</p>
+					<p><b>Descripción: </b> {{ historial.description }}</p>
+					<p><b>Fecha Creación: </b> {{ historial.creation_date }}</p>
+					<p><b>Creado Por: </b> {{ historial.created_by }}</p>
+					{% if historial.document %}
+						<a target="_blank" href="/alumno/alumno-seguimiento-documento/{{ historial.id }}/">Documento</a>
+					{% endif %}
+					
+				</div>
+			</div>
+			<hr>
+		{% endfor %}
+	</div>
 
-                        {% if perms.reporteria.add_reporter %}
-                        <th>Editar</th>
-                        <th>Comentario</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for alumno in object_list %}
-                    <tr>
-                        <td>{{alumno.id}}</td>
-                        <td>{{alumno.process.name}}</td>
-
-                        {% if perms.reporteria.add_reporter %}
-                            <td>{{alumno.alumn}}</td>
-                            <td>Ing Sistemas</td>
-                        {% endif %}
-
-                        <td>{{periodo}}</td>
-
-                        <td>{{alumno.status_verbose}}</td>
-                        <td>{{alumno.creation_date}}</td>
-
-                        <td>
-                            <button type="button" data-toggle="modal" data-target="#modal-show-{{alumno.id}}" style="color:#ff4d4d; border: none; background-color: transparent;"><spam class="fa fa-eye" alt="delete"></spam></button>
-                            <!-- Modal -->
-                            <div class="modal fade" id="modal-show-{{alumno.id}}" role="dialog">
-                                <div class="modal-dialog">
-                                  <!-- Modal content-->
-                                  <div class="modal-content">
-                                    <div class="modal-header">
-                                      <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                      <h4 class="modal-title">Historial {{ alumno }}</h4>
-                                      {% for historia in historial %}
-                                        {% if historia.process_id == alumno.id %}
-                                            <p><small>
-                                                <b>Descripción: </b> {{ historia.description }}<br>
-                                                <b>Fecha: </b> {{ historia.creation_date }}<br>
-                                                <b>Revisado Por: </b> {{ historia.reviewed_by }}<br>
-                                                <b>Aprovado Por: </b> {{ historia.approved_by }}
-                                                <hr>
-                                            </small></p>
-                                        {% endif %}
-                                      {% endfor %}
-                                    </div>
-                                    <div class="modal-body">
-                                      <p></p>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <button type="button" class="btn btn-default btn-round" data-dismiss="modal">Ok</button>
-                                    </div>
-                                  </div>
-                                  
-                                </div>
-                            </div>
-                        </td>
-
-                        {% if perms.reporteria.add_reporter %}
-                        <td><a href="/alumno/proceso-alumno-edit/{{ alumno.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></a></td>
-                        <td>
-                            <button type="button" data-toggle="modal" data-target="#modal-add-{{alumno.id}}" style="color:#00b200; border: none; background-color: transparent;"><spam class="fa fa-plus" alt="delete"></spam></button>
-                            <!-- Modal -->
-                            <div class="modal fade" id="modal-add-{{alumno.id}}" role="dialog">
-                                <div class="modal-dialog">
-                                  <!-- Modal content-->
-                                  <div class="modal-content">
-                                    <div class="modal-header">
-                                      <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                      <h4 class="modal-title">Ingresar Información {{ alumno.alumn }}</h4>
-                                      <label for="comment">Comentario:</label><br>
-                                      <textarea class="form-control" style="width: 100%" rows="5" id="comment"></textarea>
-                                    <div class="modal-body">
-                                      <p></p>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <button type="button" class="btn btn-default btn-round" data-dismiss="modal">Ok</button>
-                                    </div>
-                                  </div>
-                                  
-                                </div>
-                            </div>
-                        </td>
-                        {% endif %}
-                    </tr>
-                    {% endfor%}
-                </tbody>
-            </table>
-        </div>
-
-        <script type="text/javascript">
-        $(document).ready(function(){
-
-            postsTable = $('#{{ table_id }}').dataTable({
-                "language": {
-                    "url": "https://cdn.datatables.net/plug-ins/1.10.12/i18n/Spanish.json"
-                },
-                "columnDefs": [
-                    { "responsivePriority": 1, "targets": 0 },
-                    { "responsivePriority": 2, "targets": [-1, -2] },
-                ],
-                "pagingType": "full_numbers",
-                "fnCreatedRow": function (nRow, aData, iDataIndex) {
-                    $(nRow).attr('id', aData[0]);
-                }
-            });
-
-            $("#id_procesos").change(function(){
-              oTable = $('#{{ table_id }}').DataTable();
-              var procesos = $("#id_procesos :selected").text();
-              if(procesos=="Todos"){
-                procesos="";
-              }
-              {% if user.is_superuser %}
-              var id_carreras = $("#id_carreras :selected").text();
-              if(id_carreras=="Todos"){
-                id_carreras="";
-              }
-              oTable.column(1).search(procesos).column(3).search(id_carreras).draw();
-              {% else %}
-              oTable.column(1).search(procesos).draw();
-              {% endif %}
-            });
-
-            $("#id_carreras").change(function(){
-              oTable = $('#{{ table_id }}').DataTable();
-              var procesos = $("#id_procesos :selected").text();
-              if(procesos=="Todos"){
-                procesos="";
-              }
-              {% if user.is_superuser %}
-              var id_carreras = $("#id_carreras :selected").text();
-              if(id_carreras=="Todos"){
-                id_carreras="";
-              }
-              oTable.column(1).search(procesos).column(3).search(id_carreras).draw();
-              {% else %}
-              oTable.column(1).search(procesos).draw();
-              {% endif %}
-            });
-        });
-        </script>
-
-        {% endblock%}
+	<form class="form-horizontal" action="" method="POST" enctype="multipart/form-data">
+	    {% csrf_token %}
+	    <p><big>Puedes responder llenando la siguiente información</big></p>
+	    <input type="hidden" name="process_alumno" class="form-control" id="id_process_alumno" value="{{ process_alumno.id }}">
+	    <input type="hidden" name="status" class="form-control" id="id_status" value="{{ process_alumno.status_verbose }}">
+	    <input type="hidden" name="created_by" class="form-control" id="id_created_by" value="{{ request.user.first_name }} {{ request.user.last_name }}">
+	    <div id="id_description_div" class="form-group row description ">
+	        <label class="col-sm-2 form-control-label">*Descripción:</label>
+	        <div class="col-sm-10">
+	            <textarea name="description" id="id_description" required="" rows="10" cols="40" class="form-control"></textarea>
+	        </div>
+	    </div>
+	    <div id="id_document_div" class="form-group row document ">
+	        <label class="col-sm-2 form-control-label">Documento:</label>
+	        <div class="col-sm-10">
+	            <input type="file" name="document" class="form-control" id="id_document">
+	        </div>
+	    </div>
+	    <div class="form-actions">
+	        <div class="row text-center">
+	            <input id="id_Guardar" class="btn btn-primary" type="submit" value="Guardar">
+	        </div>
+	    </div>
+	</form>
+{% endblock %}

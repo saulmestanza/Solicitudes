@@ -112,3 +112,28 @@ class CicloSerializer(serializers.ModelSerializer):
 		result = super(CicloSerializer, self).validate(data)
 		return result
 
+
+class MateriaSerializer(serializers.ModelSerializer):
+	id = serializers.IntegerField(required=False)
+	cicles = CicloSerializer(required=False)
+
+	class Meta:
+		model = Materia
+		fields = (
+			'id',
+			'name',
+			'description',
+			'cicles',
+		)
+		depth = 1
+		read_only_fields = (
+			'id', 'deleted',
+			)
+
+	def __init__(self, *args, **kwargs):
+		self.is_update = kwargs.pop('is_update', False)
+		super(MateriaSerializer, self).__init__(*args, **kwargs)
+
+	def validate(self, data):
+		result = super(MateriaSerializer, self).validate(data)
+		return result

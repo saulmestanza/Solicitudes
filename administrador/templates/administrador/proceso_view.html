@@ -11,7 +11,7 @@
         background: #00aabb;
         border-radius: .4em;
         position: relative;
-        padding: 60px 20px;
+        padding: 10px;
         margin: 1em 0;
         text-align: center;
         color: white;
@@ -25,7 +25,7 @@
         background: #00aabb;
         border-radius: .4em;
         position: relative;
-        padding: 60px 20px;
+        padding: 10px;
         margin: 1em 0;
         text-align: center;
         color: white;
@@ -41,11 +41,11 @@
         top: 50%;
         width: 0;
         height: 0;
-        border: 32px solid transparent;
+        border: 22px solid transparent;
         border-left-color: #00aabb;
         border-right: 0;
-        margin-top: -32px;
-        margin-right: -32px;
+        margin-top: -22px;
+        margin-right: -22px;
     }
 
     .speech-bubble-2:after {
@@ -55,11 +55,11 @@
         top: 50%;
         width: 0;
         height: 0;
-        border: 32px solid transparent;
+        border: 22px solid transparent;
         border-right-color: #00aabb;
         border-left: 0;
-        margin-top: -32px;
-        margin-left: -32px;
+        margin-top: -22px;
+        margin-left: -22px;
     }
 </style>
 
@@ -73,7 +73,7 @@
             <div class="col-sm-12 col-sm-offset-5 col-xs-offset-2">
                 <hgroup class="speech-bubble-2">
             {% endif %}
-                    <p>{{ item.description }}</p>
+                    <p><small>{{ item.description }}</small></p>
                 </hgroup>
             </div>
         {% endfor %}

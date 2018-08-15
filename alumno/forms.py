@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from functools import partial
 from models import *
-from administrador.models import Materia
+from administrador.models import *
 
 class AlumnoForm(forms.ModelForm):
     READ_ONLY_FIELDS = []
@@ -20,7 +20,7 @@ class AlumnoForm(forms.ModelForm):
     last_name = forms.CharField(label=u'Apellido', max_length=30)
     email = forms.EmailField(label=u'Email', max_length=254, required=True)
     password = forms.CharField(label=_(u'Contraseña'), widget=forms.HiddenInput, required=False)
-    is_active = forms.BooleanField(label=u'Activo', required=False)
+    # is_active = forms.BooleanField(label=u'Activo', required=False)
     
     def __init__(self, *args, **kw):
         super(AlumnoForm, self).__init__(*args, **kw)
@@ -50,7 +50,7 @@ class AlumnoForm(forms.ModelForm):
 
     
     def save(self, *args, **kw):
-        is_active = self.cleaned_data.get('is_active')
+        # is_active = self.cleaned_data.get('is_active')
         self.instance.user.first_name = self.cleaned_data.get('first_name').title()
         self.instance.user.last_name = self.cleaned_data.get('last_name').title()
         email = self.cleaned_data.get('email')
@@ -58,10 +58,7 @@ class AlumnoForm(forms.ModelForm):
         self.instance.user.is_staff = False
         self.instance.user.username = email
         self.instance.user.set_password(email)
-        if is_active:
-            self.instance.is_active = False
-        else:
-            self.instance.is_active = True
+        self.instance.user.is_active = True
         user = self.instance.user
         user.save()
         if Group.objects.filter(name='Estudiantes').exists():
@@ -100,7 +97,7 @@ class AlumnoForm(forms.ModelForm):
             'last_name',
             'email',
             'carrer',
-            'is_active',
+            # 'is_active',
             ]
         exclude = ( 'user', )
 
@@ -223,13 +220,18 @@ class ProcesoAlumnoForm(forms.ModelForm):
 
     process_id = forms.IntegerField(required=False)
     alumn_id = forms.IntegerField(required=False)
+    subject_id = forms.IntegerField(required=False)
+    periodo_id = forms.IntegerField(required=False)
 
     class Meta:
         model = ProcesoAlumno
         fields = (
             'process_id',
             'alumn_id',
-            'subject',
+            'subject_id',
+            'parcial',
+            'periodo',
+            'periodo_id',
         )
         exclude =('deleted', )
 
@@ -240,17 +242,26 @@ class ProcesoAlumnoForm(forms.ModelForm):
             self.fields[field].widget.attrs['class'] = 'form-control'
 
     def save(self, *args, **kw):
+        print self.cleaned_data.get('document')
+
         process_id = self.cleaned_data.get('process_id')
         process = Proceso.objects.get(pk=process_id)
         self.instance.process = process
+
+        if 'Examen' in process.name:
+            self.instance.parcial = ""
 
         alumn_id = self.cleaned_data.get('alumn_id')
         alumn = Alumno.objects.get(pk=alumn_id)
         self.instance.alumn = alumn
 
-        _subject_id_ = self.cleaned_data.get('subject')
-        subject = Materia.objects.filter(pk=_subject_id_).first()
-        self.instance.subject = subject.name
+        subject_id = self.cleaned_data.get('subject_id')
+        subject = Materia.objects.filter(pk=subject_id).first()
+        self.instance.subject = subject
+
+        periodo_id = self.cleaned_data.get('periodo_id')
+        periodo = Periodo.objects.filter(pk=periodo_id).first()
+        self.instance.periodo = periodo.name
 
         super(ProcesoAlumnoForm, self).save(*args, **kw)
         return ProcesoAlumnoForm
@@ -266,7 +277,7 @@ class ProcesoAlumnoItemsForm(forms.ModelForm):
             'process_id_2',
             'name',
             'description',
-            'image',
+            'document',
         )
         exclude =('deleted', )
 
@@ -279,12 +290,19 @@ class ProcesoAlumnoItemsForm(forms.ModelForm):
     def save(self, *args, **kw):
         process_id = self.cleaned_data.get('process_id_2')
         process = ProcesoAlumno.objects.get(pk=process_id)
-        self.instance.process = process
+        self.instance.process_alumno = process
         super(ProcesoAlumnoItemsForm, self).save(*args, **kw)
         return ProcesoAlumnoItemsForm
 
 
 class ProcesoAlumnoCompleteForm(forms.ModelForm):
+
+    description = forms.CharField(widget=forms.Textarea, label='Descripción')
+    documento = forms.FileField(label='Documento', required=False)
+
+    input_nota_0 = forms.CharField(required=False, label='Nota')
+    input_nota_1 = forms.CharField(required=False, label='Nota #2')
+    input_nota_2 = forms.CharField(required=False, label='Nota #3')
 
     class Meta:
         model = ProcesoAlumno
@@ -294,6 +312,11 @@ class ProcesoAlumnoCompleteForm(forms.ModelForm):
             'alumn',
             'subject',
             'creation_date',
+            'description',
+            'documento',
+            'input_nota_0',
+            'input_nota_1',
+            'input_nota_2',
         )
         exclude =('deleted', )
 
@@ -311,4 +334,31 @@ class ProcesoAlumnoCompleteForm(forms.ModelForm):
     def save(self, *args, **kw):
         super(ProcesoAlumnoCompleteForm, self).save(*args, **kw)
         return ProcesoAlumnoCompleteForm
+
+
+class HistorialForm(forms.ModelForm):
+
+    description = forms.CharField(widget=forms.Textarea, label='Descripción')
+
+    class Meta:
+        model = Historial
+        fields = (
+            'description',
+            'document',
+            'process_alumno',
+            'status',
+            'created_by',
+        )
+        exclude =('deleted', )
+
+    def __init__(self, *args, **kwargs):
+        super(HistorialForm, self).__init__(*args, **kwargs)
+
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
+
+    def save(self, *args, **kw):
+        super(HistorialForm, self).save(*args, **kw)
+        return HistorialForm
+
 

@@ -24,7 +24,7 @@ class ProcesoAlumnoItemsSerializer(serializers.ModelSerializer):
 			'id',
 			'name',
 			'process_id',
-			'process',
+			'process_alumno',
 			'description',
 		)
 		depth = 1

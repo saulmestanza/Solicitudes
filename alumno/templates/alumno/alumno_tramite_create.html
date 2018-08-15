@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-
 {% block header %}
     {% include "navbar.html" %}
 {% endblock %}
 {% load staticfiles %}
 {% block content%}
+
 <style type="text/css">
 	.btn-secondary{
 		background-color: #660c0c !important;
@@ -46,28 +46,13 @@
     <div id="div_tramite">
     	<hr>
     	<div class="well">
-    		{% if user.is_superuser %}
-    		<div class="form-group">
-    			<div class="col-lg-4 col-lg-offset-2">
-	            	<label for="alumn_id">Alumno</label>
-	            </div>
-	            <div class="col-lg-4">
-		            <select id="alumn_id" name="alumn_id" class="form-control">
-		            {% for alumno in alumnos %}
-		                <option value="{{ alumno.id }}">{{ alumno.user.first_name }} {{alumno.user.last_name }}</option>
-		            {% endfor %}
-		            </select>
-	            </div>
-    		</div>
-    		{% else %}
     		<input type="hidden" name="alumn_id" name="alumn_id" value="{{ user.alumno.id }}">
-    		{% endif %}
     		<div class="form-group">
     			<div class="col-lg-4 col-lg-offset-2">
-	            	<label for="id_periodo">Periodo</label>
+	            	<label for="periodo_id">Periodo</label>
 	            </div>
 	            <div class="col-lg-4">
-		            <select id="id_periodo" class="form-control">
+		            <select id="periodo_id" name="periodo_id" class="form-control">
 		            {% for periodo in periodos %}
 		                <option value="{{ periodo.id }}">{{ periodo.name }}</option>
 		            {% endfor %}
@@ -76,25 +61,40 @@
     		</div>
     		<div class="form-group">
     			<div class="col-lg-4 col-lg-offset-2">
-	            	<label for="id_carrera">Carrera</label>
+	            	<label for="carrer">Carrera</label>
 	            </div>
 	            <div class="col-lg-4">
-		            <select id="id_carrera" class="form-control">
+		            <select id="carrer" name="carrer" class="form-control" disabled>
 		            {% for carrera in carreras %}
+		            	{% if alumno.carrer.id == carrera.id %}
+		                <option selected="true" value="{{ carrera.id }}">{{ carrera.name }}</option>
+		                {% else %}
 		                <option value="{{ carrera.id }}">{{ carrera.name }}</option>
+		                {% endif %}
 		            {% endfor %}
 		            </select>
 	            </div>
     		</div>
     		<div class="form-group">
     			<div class="col-lg-4 col-lg-offset-2">
-	            	<label for="subject">Materia</label>
+	            	<label for="id_ciclo">Ciclo</label>
 	            </div>
 	            <div class="col-lg-4">
-		            <select id="subject" name="subject" class="form-control">
-		            {% for materia in materias %}
-		                <option value="{{ materia.id }}">{{ materia.name }}</option>
-		            {% endfor %}
+		            <select id="id_ciclo" name="id_ciclo" class="form-control">
+			            {% for ciclo in ciclos %}
+			            	{% if alumno.carrer.id == ciclo.carrer.id %}
+			                <option value="{{ ciclo.id }}">{{ ciclo.name }}</option>
+			                {% endif %}
+			            {% endfor %}
+		            </select>
+	            </div>
+    		</div>
+    		<div class="form-group">
+    			<div class="col-lg-4 col-lg-offset-2">
+	            	<label for="subject_id">Materia</label>
+	            </div>
+	            <div class="col-lg-4">
+		            <select id="subject_id" name="subject_id" class="form-control">
 		            </select>
 	            </div>
     		</div>
@@ -110,23 +110,23 @@
 		            </select>
 	            </div>
     		</div>
-    		<div  id="div_parcial" style="display: none;" class="form-group">
+    		<div  id="div_parcial" class="form-group">
     			<div class="col-lg-4 col-lg-offset-2">
 	            	<label for="parcial">Parcial</label>
 	            </div>
 	            <div class="col-lg-4">
 		            <select id="parcial" name="parcial" class="form-control">
-		            	<option value="0">1 Parcial</option>
-		            	<option value="1">2 Parcial</option>
+		            	<option value="1 Parcial">1 Parcial</option>
+		            	<option value="2 Parcial">2 Parcial</option>
 		            </select>
 	            </div>
     		</div>
     		<div class="form-group">
     			<div class="col-lg-4 col-lg-offset-2">
-	            	<label for="id_documento">Documento</label>
+	            	<label for="document">Documento</label>
 	            </div>
 	            <div class="col-lg-4">
-		            <input type="file" name="id_documento">
+		            <input type="file" id="document" name="document" data-toggle="tooltip" data-placement="top" title="Documento de respaldo, copia de examen, copia de solicitud">
 	            </div>
     		</div>
         </div>
@@ -137,49 +137,48 @@
     </div>
 </form>
 
-<div style="display: none;" id="div_informacion">
+<div id="div_informacion" style="display: none;" >
     	<hr>
     	<div class="well">
-    		<div>
-    			<div class="form-group">
-    				<div class="col-lg-8 col-lg-offset-2">
-	    				<div class="table-responsive">
-				            <table id="table" class="table table-striped">
-				                <thead>
-				                    <tr>
-				                        <th>#</th>
-				                        <th>Tema</th>
-				                        <th>Descripción</th>
-				                        <th>Documento</th>
-				                    </tr>
-				                </thead>
-				                <tbody>
-				                    <tr>
-				                    </tr>
-				                </tbody>
-				            </table>
-				        </div>
-				    </div>
-    			</div>
-    		</div>
+	    	<div class="form-group">
+	    		<div class="col-lg-8 col-lg-offset-2" style="margin-bottom: 50px">
+		    		<div class="table-responsive">
+			            <table id="table" class="table table-striped" data-toggle="tooltip" data-placement="top" title="Lista de Temas para la Recalificación">
+			                <thead>
+			                    <tr>
+			                        <th>#</th>
+			                        <th>Tema</th>
+			                        <th>Argumento</th>
+			                        <th>Documento</th>
+			                        <th>Borrar</th>
+			                    </tr>
+			                </thead>
+			                <tbody>
+			                    <tr>
+			                    </tr>
+			                </tbody>
+			            </table>
+			        </div>
+			    </div>
+			</div>
     		<form class="form-horizontal" action="" method="POST" id="form_proceso_alumno_item">
     			{% csrf_token %}
     			<input type="hidden" id="process_id_2" name="process_id_2">
-    			<div>
+    			<div class="row">
 	    			<div class="form-group">
 		    			<div class="col-lg-4 col-lg-offset-2">
 			            	<label for="name">*Tema</label>
 			            </div>
 			            <div class="col-lg-4">
-				            <input type="text" name="name" id="name" required="" class="form-control">
+				            <input type="text" name="name" id="name" required="" class="form-control" data-toggle="tooltip" data-placement="top" title="Ingrese el número del tema">
 			            </div>
 		    		</div>
 		    		<div class="form-group">
 		    			<div class="col-lg-4 col-lg-offset-2">
-			            	<label for="description">*Descripción</label>
+			            	<label for="description">*Argumento</label>
 			            </div>
 			            <div class="col-lg-4">
-				           <textarea id="description" name="description" required="" class="form-control"></textarea>
+				           <textarea id="description" name="description" required="" class="form-control" data-toggle="tooltip" data-placement="top" title="Ingrese argumento por el cuál se presenta la recalificación en detalle"></textarea>
 			            </div>
 		    		</div>
 		    		<div class="form-group">
@@ -187,23 +186,20 @@
 			            	<label for="image">Documento</label>
 			            </div>
 			            <div class="col-lg-4">
-				            <input type="file" id="image" name="image">
+				            <input type="file" id="image" name="image" data-toggle="tooltip" data-placement="top" title="Ingrese archivo(s) de soporte que respalde el justificativo del tema a recalificar">
 			            </div>
 		    		</div>
 		    		<div class="form-group">
 		    			<div class="col-lg-10">
-		    				<input id="btn_crear_item" style="float: right;" name="btn_crear_item" class="btn btn-warning" type="submit" value="Agregar">
+		    				<input id="btn_crear_item" style="float: right;" name="btn_crear_item" class="btn btn-warning" type="submit" value="Agregar" data-toggle="tooltip" data-placement="top" title="Agregar Tema a la tabla de de Lista de Temas">
 			            </div>
 		    		</div>
 	    		</div>
-    		</form>
-    		
+    		</form>	
         </div>
         <hr>
 	    <div class="form-actions">
-	    	<button id="id_atras1" style="float: left;" onclick="toTramite()" name="id_atras1" class="btn btn-primary">Atrás</button>
-
-	    	<button id="id_siguiente_2" style="float: right;" onclick="toNextConfirmacion()" name="id_siguiente_2" class="btn btn-primary">Siguiente</button>
+	    	<button id="id_siguiente_2" style="float: right;" onclick="toNextConfirmacion()" name="id_siguiente_2" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Asegúrese de que toda la información este correcta antes de continuar">Siguiente</button>
 	    </div>
 </div>
 
@@ -220,6 +216,76 @@
 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 {% block javascript %}
     <script type="text/javascript">
+    	$(document).ready(function() {
+    		$('[data-toggle="tooltip"]').tooltip(); 
+    		var id = document.getElementById('id_ciclo').value;
+    		$.ajax({ // create an AJAX call...
+	        	data: $(this).serialize(), // get the form data
+	        	type: $(this).attr('method'), // GET or POST
+	        	url: '/api/materia/' + id, // the file to call
+	        	success: function(response) { // on success..
+	                $("#subject_id").empty();
+	                var i;
+	                var _ddl_ = document.getElementById("subject_id");
+	                var option = document.createElement("option");
+	                for (i = 0; i < response.length; i++) { 
+	                    option = document.createElement("option");
+	                    option.text = response[i]['name'];
+	                    option.value = response[i]['id'];
+	                    _ddl_.add(option);
+	                }
+	            },
+	            error: function(e, x, r) { // on error..
+                    $("#subject_id").empty();
+                    var _ddl_ = document.getElementById("subject_id");
+	                var option = document.createElement("option");
+	                option.text = "----"
+		            option.value = "0";
+		            _ddl_.add(option);
+	                console.log(e);
+	            }
+	        });
+    	});
+
+    	$('#id_ciclo').change(function(){
+    		if(document.getElementById('id_ciclo').value == 0){
+    			$("#subject_id").empty();
+    			var _ddl_ = document.getElementById("subject_id");
+    			var option = document.createElement("option");
+                option.text = "----"
+                option.value = "0";
+                _ddl_.add(option);
+    		}else{
+    			var id = document.getElementById('id_ciclo').value;
+    			$.ajax({ // create an AJAX call...
+	                data: $(this).serialize(), // get the form data
+	                type: $(this).attr('method'), // GET or POST
+	                url: '/api/materia/' + id, // the file to call
+	                success: function(response) { // on success..
+	                    $("#subject_id").empty();
+	                    var i;
+	                    var _ddl_ = document.getElementById("subject_id");
+	                    var option = document.createElement("option");
+	                    for (i = 0; i < response.length; i++) { 
+	                        option = document.createElement("option");
+	                        option.text = response[i]['name'];
+	                        option.value = response[i]['id'];
+	                        _ddl_.add(option);
+	                    }
+	                },
+	                error: function(e, x, r) { // on error..
+                        $("#subject_id").empty();
+                        var _ddl_ = document.getElementById("subject_id");
+	                    var option = document.createElement("option");
+	                    option.text = "----"
+		                option.value = "0";
+		                _ddl_.add(option);
+	                    console.log(e);
+	                }
+	            });
+    		}
+        });
+
     	function toTramite(){
     		document.getElementById("div_confirmacion").style.display = "none";
 			document.getElementById("div_tramite").style.display = "";
@@ -227,7 +293,7 @@
     	}
 
     	function goToNext(){
-    		if(document.getElementById('process_id').value == 1){
+    		if(document.getElementById('process_id').value == 2){
     			toNextConfirmacion();
     		}else{
     			toNextInformacion();
@@ -235,7 +301,7 @@
     	}
 
     	$('#process_id').change(function() {
-    		if(document.getElementById('process_id').value == 1){
+    		if(document.getElementById('process_id').value == 2){
     			document.getElementById('div_parcial').style.display = "none";
     		}else{
     			document.getElementById('div_parcial').style.display = "";
@@ -255,7 +321,7 @@
 			document.getElementById("div_informacion").style.display = "none";
         }
 
-        $('#form_proceso_alumno_item').submit(function() { // catch the form's submit event
+        $('#form_proceso_alumno_item').submit(function() {
             $.ajax({ // create an AJAX call...
                 data: $(this).serialize(), // get the form data
                 type: $(this).attr('method'), // GET or POST
@@ -266,14 +332,42 @@
 
                     var table = document.getElementById("table");
 				    var row = table.insertRow(1);
-				    var cell1 = row.insertCell(0);
-				    var cell2 = row.insertCell(1);
-				    var cell3 = row.insertCell(2);
-				    var cell4 = row.insertCell(3);
-				    cell1.innerHTML = jsonObject.items['id'];
-				    cell2.innerHTML = jsonObject.items['name'];
-				   	cell3.innerHTML = jsonObject.items['description'];
-				    cell4innerHTML = '';
+				    var cell0 = row.insertCell(0);
+				    var cell1 = row.insertCell(1);
+				    var cell2 = row.insertCell(2);
+				    var cell3 = row.insertCell(3);
+				    var cell4 = row.insertCell(4);
+
+				    var _id_ = jsonObject.items['id'];
+
+				    var button = document.createElement("input");
+				    button.setAttribute('type','button'); // set attributes ...
+				    button.setAttribute('name','borrarBtn_'+_id_);
+				    button.setAttribute('id','borrarBtn_'+_id_);
+				    button.setAttribute('class','btn btn-primary');
+				    button.setAttribute('value', 'Borrar');
+				    button.onclick = function() {
+				    	$(this).closest('tr').remove();
+				    	$.ajax({ // create an AJAX call...
+				    		data: {
+						        csrfmiddlewaretoken: '{{ csrf_token }}'
+						    },
+			                type: 'POST', // GET or POST
+			                url: '/alumno/proceso-item-delete/'+_id_+"/", // the file to call
+			                success: function(response) { // on success..
+			                    
+			                },
+			                error: function(e, x, r) { // on error..
+			                    console.log(e);
+			                }
+			            });
+				    }
+
+				    cell0.innerHTML = jsonObject.items['id'];
+				    cell1.innerHTML = jsonObject.items['name'];
+				   	cell2.innerHTML = jsonObject.items['description'];
+				   	// cell3.innerHTML = jsonObject.items['description'];
+				    cell4.appendChild(button);
 				    document.getElementById('name').value = "";
                     document.getElementById('description').value = "";
                 },
@@ -284,15 +378,13 @@
             return false;
         });
 
-        $('#form_proceso_alumno').submit(function() { // catch the form's submit event
+        $('#form_proceso_alumno').submit(function() { 
             $.ajax({ // create an AJAX call...
                 data: $(this).serialize(), // get the form data
                 type: $(this).attr('method'), // GET or POST
+                enctype: "multipart/form-data",
                 url: '/alumno/proceso-alumno-new/', // the file to call
                 success: function(response) { // on success..
-                	{% if user.is_superuser %}
-                		document.getElementById('alumno_id').value = document.getElementById('alumn_id').value;
-                	{% endif %}
                     let jsonObject = JSON.parse(response);
                     document.getElementById('process_id_2').value = jsonObject.items['id'];
                     goToNext();
@@ -305,4 +397,5 @@
         });
     </script>
 {% endblock %}
+
 {% endblock%}

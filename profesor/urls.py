@@ -9,6 +9,6 @@ urlpatterns = [
 	url(r'^profesores-edit-password/(?P<id>[\w\-]+)/$', views.ProfesorPasswordUpdateView.as_view(), name='profesores-edit-password' ),
 	url(r'^profesores-delete/(?P<id>[\w\-]+)/$', views.ProfesorDeleteView.as_view(), name='profesores-delete' ),
 
-	url(r'^profesor-seguimiento/$', views.ProfesorProcesosListView.as_view(), name='profesor-seguimiento'),
-	url(r'^proceso-profesor-edit/(?P<id>[\w\-]+)/$', views.ProfesorProcesosEditView.as_view(), name='profesor-proceso-edit'),
+	# url(r'^profesor-seguimiento/$', views.ProfesorProcesosListView.as_view(), name='profesor-seguimiento'),
+	# url(r'^proceso-profesor-edit/(?P<id>[\w\-]+)/$', views.ProfesorProcesosEditView.as_view(), name='profesor-proceso-edit'),
 ]

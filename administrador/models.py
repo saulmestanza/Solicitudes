@@ -11,7 +11,7 @@ class UserProfile(models.Model):
 
 class Facultad(models.Model):
     name = models.CharField(max_length=128, verbose_name=_(u'Nombre'))
-    deleted = models.BooleanField(default=False, verbose_name=_('No Activo'))
+    deleted = models.BooleanField(default=False, verbose_name=_('Deshabilitado'))
     
     def __unicode__(self):
         return self.name
@@ -19,7 +19,7 @@ class Facultad(models.Model):
 class Carrera(models.Model):
     name = models.CharField(max_length=32, verbose_name=_(u'Nombre'))
     faculty = models.ForeignKey(Facultad, on_delete=models.CASCADE, verbose_name=_('Facultad'), blank=True, null=True)
-    deleted = models.BooleanField(default=False, verbose_name=_('No Activo'))
+    deleted = models.BooleanField(default=False, verbose_name=_('Deshabilitado'))
 
     def __unicode__(self):
         return "%s"%(self.name)
@@ -27,7 +27,7 @@ class Carrera(models.Model):
 class Ciclo(models.Model):
     name = models.CharField(max_length=128, verbose_name=_(u'Nombre'))
     carrer = models.ForeignKey(Carrera, on_delete=models.CASCADE, verbose_name=_('Carrera'), blank=True, null=True)
-    deleted = models.BooleanField(default=False, verbose_name=_('No Activo'))
+    deleted = models.BooleanField(default=False, verbose_name=_('Deshabilitado'))
     
     def __unicode__(self):
         return "%s"%(self.name)
@@ -36,7 +36,7 @@ class Materia(models.Model):
     name = models.CharField(max_length=128, verbose_name=_(u'Nombre'))
     description = models.CharField(max_length=128, verbose_name=_(u'Descripción'), blank=True, null=True)
     cicles = models.ForeignKey(Ciclo, on_delete=models.CASCADE, verbose_name=_('Ciclo'), blank=True, null=True)
-    deleted = models.BooleanField(default=False, verbose_name=_('No Activo'))
+    deleted = models.BooleanField(default=False, verbose_name=_('Deshabilitado'))
     
     def __unicode__(self):
         return self.name
@@ -44,7 +44,7 @@ class Materia(models.Model):
 class Proceso(models.Model):
     name = models.CharField(max_length=128, verbose_name=_(u'Nombre'))
     proceso_items = models.ManyToManyField('ProcesoItems', verbose_name=_(u'Descripción'))
-    deleted = models.BooleanField(default=False, verbose_name=_('No Activo'))
+    deleted = models.BooleanField(default=False, verbose_name=_('Deshabilitado'))
     
     def __unicode__(self):
         return "%s"%(self.name)
@@ -62,7 +62,7 @@ class ProcesoItems(models.Model):
 class Periodo(models.Model):
     name = models.CharField(max_length=128, verbose_name=_(u'Periodo'))
     carrer = models.ManyToManyField('Carrera', verbose_name=_(u'Carrera'))
-    deleted = models.BooleanField(default=False, verbose_name=_('No Activo'))
+    deleted = models.BooleanField(default=False, verbose_name=_('Deshabilitado'))
     
     def __unicode__(self):
         return "%s"%(self.name)

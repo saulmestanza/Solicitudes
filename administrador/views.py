@@ -723,8 +723,8 @@ class CarreraDelete(UserPassesTestMixin, DeleteView):
     def get_object(self):
         if not Carrera.objects.filter(pk=self.kwargs['id']).exists():
             raise Http404
-        faculty = Carrera.objects.get(pk=self.kwargs['id'])
-        return faculty
+        carrera = Carrera.objects.get(pk=self.kwargs['id'])
+        return carrera
 
     
     def get(self, request, *args, **kwargs):

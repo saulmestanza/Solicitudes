@@ -13,11 +13,14 @@ urlpatterns = [
 	url(r'^alumno-edit-password/(?P<id>[\w\-]+)/$', views.AlumnoPasswordUpdateView.as_view(), name='alumno-edit-password' ),
 	url(r'^alumno-delete/(?P<id>[\w\-]+)/$', views.AlumnoDeleteView.as_view(), name='alumno-delete' ),
 
-	url(r'^alumno-seguimiento/$', views.AlumnoProcesosListView.as_view(), name='alumno-seguimiento'),
+	url(r'^alumno-seguimiento/$', views.AlumnoSeguimientoListView.as_view(), name='alumno-seguimiento'),
+	url(r'^alumno-seguimiento-historial/(?P<id>[\w\-]+)/$', views.HistorialCreateView.as_view(), name='alumno-seguimiento-historial'),
+	url(r'^alumno-seguimiento-edit/(?P<id>[\w\-]+)/$', views.AlumnoSeguimientoItemUpdateView.as_view(), name='alumno-seguimiento-edit'),
 	url(r'^alumno-tramite/$', views.AlumnoTramiteCreate.as_view(), name='alumno-tramite'),
+	url(r'^alumno-seguimiento-documento/(?P<id>[\w\-]+)/$', views.HistorialStreamFilesView.as_view(), name='alumno-seguimiento-documento'),
 
 	url(r'^proceso-alumno-new/$', views.ProcesoAlumnoCreateView.as_view(), name='alumno-proceso-new'),
-	url(r'^proceso-alumno-edit/(?P<id>[\w\-]+)/$', views.ProcesoAlumnoEditView.as_view(), name='alumno-proceso-edit'),
 
 	url(r'^proceso-item-new/$', views.ProcesoAlumnoItemsCreateView.as_view(), name='alumno-proceso-item-new'),
+	url(r'^proceso-item-delete/(?P<id>[\w\-]+)/$', views.ProcesoAlumnoItemsDeleteView.as_view(), name='alumno-proceso-item-delete'),
 ]

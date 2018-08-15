@@ -7,29 +7,33 @@
 {% block content%}
 <form class="form-horizontal" action="" method="POST">
     {% csrf_token %}
-    <div id="id_username_div" class="form-group row username ">
-        <label class="col-sm-2 form-control-label">*Usuario:</label>
-        <div class="col-sm-10">
-            <input type="text" name="username" required="" class="form-control" id="id_username">
+    <div class="col-sm-6 col-sm-offset-3">
+        <div id="id_username_div" class="form-group row username ">
+            <label class="col-sm-2 form-control-label">*Usuario:</label>
+            <div class="col-sm-10">
+                <input type="text" name="username" required="" class="form-control" id="id_username">
+            </div>
         </div>
-    </div>
-    <div id="id_password_div" class="form-group row password ">
-        <label class="col-sm-2 form-control-label">*Contraseña:</label>
-        <div class="col-sm-10">
-            <input type="password" name="password" required="" class="form-control" id="id_password">
+        <div id="id_password_div" class="form-group row password ">
+            <label class="col-sm-2 form-control-label">*Contraseña:</label>
+            <div class="col-sm-10">
+                <input type="password" name="password" required="" class="form-control" id="id_password">
+            </div>
         </div>
-    </div>
-    <div class="form-group row">
-    	<div class="col-sm-6 col-xs-6">
-            <label>Si eres estudiante y aún no tienes una cuenta, crea una <a href="{% url "alumno-new-account" %}">aquí</a>.</label>
-    	</div>
-        <div class="col-sm-6 col-xs-6">
-            <a href="{% url "alumno-reset" %}" style="float: right;">Recuperar Contraseña</a>
+        <div class="form-actions">
+            <div class="row text-center">
+                <input id="id_Iniciar sesión" class="btn btn-primary" type="submit" value="Iniciar sesión">
+            </div>
         </div>
-    </div>
-    <div class="form-actions">
-        <div class="row text-center">
-            <input id="id_Iniciar sesión" class="btn btn-primary" type="submit" value="Iniciar sesión">
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <a href="{% url "alumno-reset" %}" style="float: left;">Recuperar Contraseña</a>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-12" style="text-align: center;">
+                <label>Si eres estudiante y aún no tienes una cuenta, crea una <a href="{% url "alumno-new-account" %}">aquí</a>.</label>
+            </div>
         </div>
     </div>
 </form>

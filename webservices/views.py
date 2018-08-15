@@ -71,3 +71,27 @@ class CiclosAPIView(APIView):
 		return self.DOES_NOT_EXISTS_RESPONSE
 
 
+class MateriaAPIView(APIView):
+	DOES_NOT_EXISTS_RESPONSE = Response(
+		{ "non_field_errors": ["DoesNotExist: Materia matching query does not exist."] },
+		status=status.HTTP_404_NOT_FOUND
+	)
+
+	permission_classes = (
+		permissions.AllowAny,
+	)
+	queryset = Materia.objects.all()
+	throttle_classes = (
+		UserRateThrottle,
+	)
+
+	def get(self, request, **kwargs):
+		ciclo_id = kwargs.get('id', None)
+		if ciclo_id:
+			carreras = Materia.objects.filter(cicles=ciclo_id, deleted=False)
+			if carreras:
+				serializer = MateriaSerializer(carreras, many=True)
+				return Response(serializer.data, status=status.HTTP_200_OK)
+		return self.DOES_NOT_EXISTS_RESPONSE
+
+
