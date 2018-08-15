@@ -244,7 +244,7 @@ class AlumnoSeguimientoListView(UserPassesTestMixin, ListView):
         return self.request.user
 
     def get_queryset(self):
-        if self.request.user.is_superuser:
+        if self.request.user.is_superuser or self.request.user.is_staff:
             return super(AlumnoSeguimientoListView, self).get_queryset().all()
         else:
             if Alumno.objects.filter(user__username=self.request.user.username).exists():

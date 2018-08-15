@@ -102,11 +102,11 @@
                     {% endif %}
 
                     {% if perms.reporteria.add_reporter %}
-                    <li class="dropdown{% if isReporte %} active{% endif%}">
+                    <li class="dropdown{% if isReporter %} active{% endif%}">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reportes<b class="caret"></b></a>
                           <ul class="dropdown-menu">
                             <li><a href="{% url "reporteria-notas" %}">Reporte Notas</a></li>
-                            <li><a href="#">Reporte de Estadísticas</a></li>
+                            <li><a href="{% url "reporteria-estadisticas" %}">Reporte de Estadísticas</a></li>
                           </ul>
                     </li>
                   {% endif %}

@@ -69,3 +69,43 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, CreateView):
         context['motto'] = "Reporteria Notas"
         return context
 
+
+
+class ReporteriaEstadisticasCreateView(PermissionRequiredMixin, CreateView):
+    model = Reporter
+    form_class = ReporterForm
+
+    template_name = 'reporteria/reporter_estadisticas.html'
+    success_url = '/reporteria/reporteria-estadisticas/'
+    permission_required = (
+        'reporteria.add_reporter',
+    )
+
+    def test_func(self):
+        return self.request.user
+
+    def form_valid(self, form):
+        clean = form.cleaned_data
+        description =  clean['description']
+        document = clean['documento']
+        try:
+            context = self.get_context_data()
+            self.object = form.save()
+            response = super(ReporteriaEstadisticasCreateView, self).form_valid(form)
+        except Exception as e:
+            print e
+            response = super(ReporteriaEstadisticasCreateView, self).form_invalid(form)
+        return response
+
+    def form_invalid(self, form):
+        return super(ReporteriaEstadisticasCreateView, self).form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReporteriaEstadisticasCreateView, self).get_context_data(**kwargs)
+        context['tittle'] = "Repoteria"
+        context['carrers'] = Carrera.objects.filter(deleted=False)
+        context['periodos'] = Periodo.objects.filter(deleted=False)
+        context['proceso_alumno'] = ProcesoAlumno.objects.filter(status='FN')
+        context['motto'] = "Reporteria Estadísticas"
+        return context
+
