@@ -1,22 +1,73 @@
-{% extends "base.html" %}
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Seguimiento UCSG - {{ tittle }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{% static "images/favicon.png" %}" type="image/x-icon">
 
-{% block header %}
-    {% include "navbar.html" with isAlumno="true" %}
-{% endblock %}
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/navbar.scss" %} " rel='stylesheet' type='text/css' />
 
-{% block content%}
-<form class="form-horizontal" action="" method="POST">
-    {% csrf_token %}
-    <div class="form-actions">
-    	<div id="id_description_div" class="form-group row email ">
-	        <label class="col-sm-2 form-control-label">Correo Electrónico:</label>
-	        <div class="col-sm-10">
-	            <input type="email" name="id_email" id="id_email" class="form-control" maxlength="128">
-	        </div>
-	    </div>
-        <div class="row text-center">
-            <input id="id_Guardar" class="btn btn-primary" type="submit" value="Recuperar Contraseña">
+    <link rel="stylesheet" type="text/css" href="{% static "test/fonts/font-awesome-4.7.0/css/font-awesome.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/fonts/iconic/css/material-design-iconic-font.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/animate/animate.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/css-hamburgers/hamburgers.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/animsition/css/animsition.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/select2/select2.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/daterangepicker/daterangepicker.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/css/util.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/css/main.css" %}">
+</head>
+<body>
+    {% block header%}
+        {% include "navbar.html" with isAdmin="true" %}
+    {% endblock%}
+
+    <div class="limiter">
+        <div class="container-login100" style="background-image: url('http://www.ucsg.edu.ec/wp-content/uploads/2018/05/56anos.jpg');">
+            <div class="wrap-login100">
+                <form class="login100-form validate-form" action="" method="POST">
+                    {% csrf_token %}
+
+                    {% if alert_message %}
+                    <div class="alert alert-danger">                            
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{ alert_message.mod }} {{ alert_message.message }}
+                    </div>
+                    {% endif %}
+
+                    <span class="login100-form-logo">
+                        <img src="{% static "images/logo.png" %}">
+                    </span>
+                    <span class="login100-form-title p-b-34 p-t-27">
+                        {{ tittle|capfirst }}
+                    </span>
+                    <div class="wrap-input100 validate-input" data-validate = "Ingrese Correo Electrónico">
+                        <input type="email" name="id_email" required id="id_email" class="input100" placeholder="Correo Electrónico" maxlength="128">
+                        <span class="focus-input100" data-placeholder="&#xf207;"></span>
+                    </div>
+                    <div class="container-login100-form-btn">
+                        <input id="id_Guardar" class="login100-form-btn" type="submit" value="Recuperar Contraseña">
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</form>
-{% endblock%}
+    <div id="dropDownSelect1">
+        
+    </div>
+    <script src="{% static "test/vendor/jquery/jquery-3.2.1.min.js" %}"></script>
+    <script src="{% static "test/vendor/animsition/js/animsition.min.js" %}"></script>
+    <script src="{% static "test/vendor/bootstrap/js/popper.js" %}"></script>
+    <script src="{% static "test/vendor/bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "test/vendor/select2/select2.min.js" %}"></script>
+    <script src="{% static "test/vendor/daterangepicker/moment.min.js" %}"></script>
+    <script src="{% static "test/vendor/daterangepicker/daterangepicker.js" %}"></script>
+    <script src="{% static "test/vendor/countdowntime/countdowntime.js" %}"></script>
+    <script src="{% static "test/js/main.js" %}"></script>
+</body>
+</html>

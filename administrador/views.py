@@ -39,13 +39,6 @@ class LoginView(FormView):
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
-            """
-            if not user.is_staff and not user.is_superuser:
-                self.alert_message = {'class': 'alert alert-danger',
-                'mod': 'Error:',
-                'message': u'Usuario no autorizado.'}
-                return self.get(request)
-            """
             if user.is_active:
                 login(request, user)
                 next = request.GET.get('next')

@@ -1,40 +1,79 @@
-{% extends "base.html" %}
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Seguimiento UCSG - {{ tittle }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{% static "images/favicon.png" %}" type="image/x-icon">
+    
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/navbar.scss" %} " rel='stylesheet' type='text/css' />
 
-{% block header %}
-    {% include "navbar.html" %}
-{% endblock %}
+    <link rel="stylesheet" type="text/css" href="{% static "test/fonts/font-awesome-4.7.0/css/font-awesome.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/fonts/iconic/css/material-design-iconic-font.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/animate/animate.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/css-hamburgers/hamburgers.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/animsition/css/animsition.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/select2/select2.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/vendor/daterangepicker/daterangepicker.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/css/util.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "test/css/main.css" %}">
+</head>
+<body>
+    <div class="limiter">
+        <div class="container-login100" style="background-image: url('http://www.ucsg.edu.ec/wp-content/uploads/2018/05/56anos.jpg');">
+            <div class="wrap-login100">
+                <form class="login100-form validate-form" action="" method="POST">
+                    {% csrf_token %}
 
-{% block content%}
-<form class="form-horizontal" action="" method="POST">
-    {% csrf_token %}
-    <div class="col-sm-6 col-sm-offset-3">
-        <div id="id_username_div" class="form-group row username ">
-            <label class="col-sm-2 form-control-label">*Usuario:</label>
-            <div class="col-sm-10">
-                <input type="text" name="username" required="" class="form-control" id="id_username">
-            </div>
-        </div>
-        <div id="id_password_div" class="form-group row password ">
-            <label class="col-sm-2 form-control-label">*Contraseña:</label>
-            <div class="col-sm-10">
-                <input type="password" name="password" required="" class="form-control" id="id_password">
-            </div>
-        </div>
-        <div class="form-actions">
-            <div class="row text-center">
-                <input id="id_Iniciar sesión" class="btn btn-primary" type="submit" value="Iniciar sesión">
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-sm-10">
-                <a href="{% url "alumno-reset" %}" style="float: left;">Recuperar Contraseña</a>
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-sm-12" style="text-align: center;">
-                <label>Si eres estudiante y aún no tienes una cuenta, crea una <a href="{% url "alumno-new-account" %}">aquí</a>.</label>
+                    {% if alert_message %}
+                    <div class="alert alert-danger">                            
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{ alert_message.mod }} {{ alert_message.message }}
+                    </div>
+                    {% endif %}
+
+                    <span class="login100-form-logo">
+                        <img src="{% static "images/logo.png" %}">
+                    </span>
+                    <span class="login100-form-title p-b-34 p-t-27">
+                        {{ tittle|capfirst }}
+                    </span>
+                    <div class="wrap-input100 validate-input" data-validate = "Ingrese Correo Electrónico">
+                        <input type="text" name="username" required="" class="input100" id="id_username" placeholder="Correo Electrónico">
+                        <span class="focus-input100" data-placeholder="&#xf207;"></span>
+                    </div>
+                    <div class="wrap-input100 validate-input" data-validate="Ingrese Contraseña">
+                        <input type="password" name="password" required="" class="input100" id="id_password" placeholder="Contraseña">
+                        <span class="focus-input100" data-placeholder="&#xf191;"></span>
+                    </div>
+                    <div class="container-login100-form-btn">
+                        <input id="id_Iniciar sesión" class="login100-form-btn" type="submit" value="Iniciar sesión">
+                    </div>
+                    <div class="text-center p-t-20">
+                        <label>Si eres estudiante y aún no tienes una cuenta, crea una <a href="{% url "alumno-new-account" %}">aquí</a>.</label>
+                    </div>
+                    <div class="text-center p-t-20">
+                        <a href="{% url "alumno-reset" %}" class="txt1">Recuperar Contraseña</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</form>
-{% endblock%}
+    <div id="dropDownSelect1">
+        
+    </div>
+    <script src="{% static "test/vendor/jquery/jquery-3.2.1.min.js" %}"></script>
+    <script src="{% static "test/vendor/animsition/js/animsition.min.js" %}"></script>
+    <script src="{% static "test/vendor/bootstrap/js/popper.js" %}"></script>
+    <script src="{% static "test/vendor/bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "test/vendor/select2/select2.min.js" %}"></script>
+    <script src="{% static "test/vendor/daterangepicker/moment.min.js" %}"></script>
+    <script src="{% static "test/vendor/daterangepicker/daterangepicker.js" %}"></script>
+    <script src="{% static "test/vendor/countdowntime/countdowntime.js" %}"></script>
+    <script src="{% static "test/js/main.js" %}"></script>
+</body>
+</html>
