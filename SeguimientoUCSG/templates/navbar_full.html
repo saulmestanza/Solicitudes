@@ -1,0 +1,96 @@
+{% load staticfiles %}
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a href="/" class="navbar-brand"><img src="{% static "images/main-logo.png" %}" style="width: auto; height: 60px;"></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+              <li class="nav-item {% if isHome %} active{% endif%}">
+                  <a class="nav-link" href="/">Inicio<span class="sr-only">(current)</span></a>
+              </li>
+              {% if user.is_authenticated %}
+                  {% if request.user.is_superuser %}
+                      <li class="nav-item dropdown {% if isAdmin %} active{% endif%}">
+                          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Administrador</a>
+                          <div class="dropdown-menu">
+                              <a class="dropdown-item" href="{% url "administrador-users-list" %}">Lista de Usuarios</a>
+                              <a class="dropdown-item" href="{% url "administrador-user-new" %}">Nuevo Usuario</a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{% url "administrador-permissions-list" %}">Permisos</a>
+                              <a class="dropdown-item" href="{% url "administrador-permission-new" %}">Nuevo Permiso</a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{% url "administrador-groups-list" %}">Grupos de Roles</a>
+                              <a class="dropdown-item" href="{% url "administrador-group-new" %}">Nuevo Grupo de Roles</a>
+                          </div>
+                      </li>
+                      <li class="nav-item dropdown {% if isUniversidad %} active{% endif%}">
+                          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Universidad</a>
+                          <div class="dropdown-menu">
+                              <a class="dropdown-item" href="{% url "administrador-faculties-list" %}">Facultades</a>
+                              <a class="dropdown-item" href="{% url "administrador-faculties-new" %}">Nueva Facultad</a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{% url "administrador-carrera-list" %}">Carrera</a>
+                              <a class="dropdown-item" href="{% url "administrador-carrera-new" %}">Nueva Carrera</a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{% url "administrador-periodo-list" %}">Periódo</a>
+                              <a class="dropdown-item" href="{% url "administrador-periodo-new" %}">Nuevo Periódo</a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{% url "administrador-ciclo-list" %}">Ciclos</a>
+                              <a class="dropdown-item" href="{% url "administrador-ciclo-new" %}">Nuevo Ciclo</a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{% url "administrador-materia-list" %}">Materias</a>
+                              <a class="dropdown-item" href="{% url "administrador-materia-new" %}">Nueva Materia</a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{% url "administrador-proceso-list" %}">Procesos</a>
+                              <a class="dropdown-item" href="{% url "administrador-proceso-new" %}">Nuevo Proceso</a>
+                          </div>
+                      </li>
+                  {% endif %}
+                  {% if perms.alumno.add_procesoalumno %}
+                    <li class="nav-item dropdown {% if isAlumno %} active{% endif%}">
+                          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Alumnos</a>
+                          <div class="dropdown-menu">
+                            {% if request.user.is_superuser %}
+                                <a class="dropdown-item" href="{% url "alumno-list" %}">Lista Alumnos</a>
+                                <a class="dropdown-item" href="{% url "alumno-new" %}">Nuevo Alumno</a>
+                                <div class="dropdown-divider"></div>
+                              {% endif %}
+                              {% if not request.user.is_superuser and not perms.reporteria.add_reporter %}
+                                <a class="dropdown-item" href="{% url "alumno-tramite" %}">Iniciar Trámite</a>
+                              {% endif %}
+                              <a class="dropdown-item" href="{% url "alumno-seguimiento" %}">Seguimiento Trámites</a>
+                          </div>
+                      </li>
+          {% endif %}
+              {% if request.user.is_superuser %}
+                <li class="nav-item dropdown {% if isProfesor %} active{% endif%}">
+                          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Profesores</a>
+                          <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url "profesores-list" %}">Lista Profesores</a>
+                            <a class="dropdown-item" href="{% url "profesores-new" %}">Nuevo Profesor</a>
+                          </div>
+                      </li>
+          {% endif %}
+              {% if perms.reporteria.add_reporter %}
+                <li class="nav-item dropdown {% if isReporter %} active{% endif%}">
+                          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Reportes</a>
+                          <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url "reporteria-notas" %}">Reporte Notas</a>
+                            <a class="dropdown-item" href="{% url "reporteria-estadisticas" %}">Reporte de Estadísticas</a>
+                          </div>
+                      </li>
+          {% endif %}
+              {% endif %}
+         
+            {% if user.is_authenticated %}
+                  {% if not request.user.is_superuser %}
+                    <a style="color: #d3d3d3" class="nav-link" href="{% url "administrador-user-edit" username=user.username %}">Perfil<span class="sr-only">(current)</span></a>
+                  {% endif %}
+                  <a style="color: #d3d3d3" class="nav-link" href="{% url "administrador-logout" %}">Cerrar sesión<span class="sr-only">(current)</span></a>
+              {% else %}
+                <a style="color: #d3d3d3" class="nav-link" href="{% url "administrador-login" %}">Iniciar sesión<span class="sr-only">(current)</span></a>
+              {% endif %}
+             </ul>
+      </div>
+  </nav>

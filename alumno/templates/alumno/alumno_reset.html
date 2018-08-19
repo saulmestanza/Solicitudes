@@ -21,12 +21,8 @@
     <link rel="stylesheet" type="text/css" href="{% static "test/css/main.css" %}">
 </head>
 <body>
-    {% block header%}
-        {% include "navbar.html" with isAdmin="true" %}
-    {% endblock%}
-
     <div class="limiter">
-        <div class="container-login100" style="background-image: url('http://www.ucsg.edu.ec/wp-content/uploads/2018/05/56anos.jpg');">
+         <div class="container-login100" style="background-image: url('{% static 'images/background.jpg' %}');">
             <div class="wrap-login100">
                 <form class="login100-form validate-form" action="" method="POST">
                     {% csrf_token %}

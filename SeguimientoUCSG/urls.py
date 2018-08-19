@@ -33,7 +33,7 @@ class HomeView(TemplateView):
             'mod': u'',
             'message': _(u'Inicio de sesión exitoso.')}
         else:            
-            context['motto'] = u"_"
+            context['motto'] = _(u"Bienvenido al sistema de Seguimiento UCSG")
             context['alert_message'] = {'class': 'warning',
             'mod': _(u'Atención:'),
             'message': _(u'Este es un sitio de acceso restringido.')}
