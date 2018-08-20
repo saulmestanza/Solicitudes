@@ -82,8 +82,9 @@
                       </li>
           {% endif %}
               {% endif %}
-         
+            </ul>
             {% if user.is_authenticated %}
+              <form class="form-inline mt-2 mt-md-0">
                   {% if not request.user.is_superuser %}
                     <a style="color: #d3d3d3" class="nav-link" href="{% url "administrador-user-edit" username=user.username %}">Perfil<span class="sr-only">(current)</span></a>
                   {% endif %}
@@ -91,6 +92,6 @@
               {% else %}
                 <a style="color: #d3d3d3" class="nav-link" href="{% url "administrador-login" %}">Iniciar sesión<span class="sr-only">(current)</span></a>
               {% endif %}
-             </ul>
+              </form>
       </div>
   </nav>

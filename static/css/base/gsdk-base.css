@@ -1199,3 +1199,11 @@ input.ct-red + span.switch-left, input.ct-red + span + label + span.switch-right
     background-color: #FF4C40;
     background-color: rgba(255, 76, 64, 0.96);
 }
+
+.pagination>li>a, .pagination>li>span{
+    color: #777777 !important;
+}
+
+.pagination > li.active > a, .pagination > li.active > span, .pagination > li.active > a:hover, .pagination > li.active > span:hover, .pagination > li.active > a:focus, .pagination > li.active > span:focus{
+    color: #FFF !important;
+}

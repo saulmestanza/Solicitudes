@@ -1,140 +1,135 @@
 x{% load staticfiles %}
-
 <div id="navbar-full">
     <div id="navbar">
-    <!--
-        navbar-default can be changed with navbar-ct-blue navbar-ct-azzure navbar-ct-red navbar-ct-green navbar-ct-orange
-        -->
+        <!--
+            navbar-default can be changed with navbar-ct-blue navbar-ct-azzure navbar-ct-red navbar-ct-green navbar-ct-orange
+            -->
         <nav class="navbar navbar-ct-blue navbar-transparent navbar-fixed-top" role="navigation" style="background-color: #660c0c;" >
-          {% if alert_message %}
-          <div class="alert alert-{{ alert_message.class }}">
-            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-            <strong>{{ alert_message.mod }}</strong> {{ alert_message.message }}
-          </div>
-          {% endif %}
-
-          <div class="">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              <div>
-                <a>&nbsp</a>
-                <a>&nbsp</a>
-                <a href="/"><img src="{% static "images/main-logo.png" %}" style="width: auto; height: 60px;"></a>
-                <!-- <a class="navbar-brand">&nbsp Creciendo Unidos</a> -->
-              </div>
+            {% if alert_message %}
+            <div class="alert alert-{{ alert_message.class }}">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ alert_message.mod }}</strong> {{ alert_message.message }}
             </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-              <ul class="nav navbar-nav">
-                <li {% if isHome %} class="active"{% endif%}><a href="/">Inicio</a></li>
-
-                {% if user.is_authenticated %}
-                  {% if request.user.is_superuser %}
-                    <li class="dropdown{% if isAdmin %} active{% endif%}">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administrador<b class="caret"></b></a>
-                          <ul class="dropdown-menu">
-                            <li><a href="{% url "administrador-users-list" %}">Lista de Usuarios</a></li>
-                            <li><a href="{% url "administrador-user-new" %}">Nuevo Usuario</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url "administrador-permissions-list" %}">Permisos</a></li>
-                            <li><a href="{% url "administrador-permission-new" %}">Nuevo Permiso</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url "administrador-groups-list" %}">Grupos de Roles</a></li>
-                            <li><a href="{% url "administrador-group-new" %}">Nuevo Grupo de Roles</a></li>
-                          </ul>
-                    </li>
-                    <li class="dropdown{% if isUniversidad %} active{% endif%}">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Universidad<b class="caret"></b></a>
-                          <ul class="dropdown-menu">
-                            <li><a href="{% url "administrador-faculties-list" %}">Facultades</a></li>
-                            <li><a href="{% url "administrador-faculties-new" %}">Nueva Facultad</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url "administrador-carrera-list" %}">Carrera</a></li>
-                            <li><a href="{% url "administrador-carrera-new" %}">Nueva Carrera</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url "administrador-periodo-list" %}">Periodo</a></li>
-                            <li><a href="{% url "administrador-periodo-new" %}">Nuevo Periodo</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url "administrador-ciclo-list" %}">Ciclos</a></li>
-                            <li><a href="{% url "administrador-ciclo-new" %}">Nuevo Ciclo</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url "administrador-materia-list" %}">Materias</a></li>
-                            <li><a href="{% url "administrador-materia-new" %}">Nueva Materia</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{% url "administrador-proceso-list" %}">Procesos</a></li>
-                            <li><a href="{% url "administrador-proceso-new" %}">Nuevo Proceso</a></li>
-                          </ul>
-                    </li>
-                    {% endif %}
-                    
-                    {% if perms.alumno.add_procesoalumno %}
-                    <li class="dropdown{% if isAlumno %} active{% endif%}">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Alumnos<b class="caret"></b></a>
-                          <ul class="dropdown-menu">
-                            {% if request.user.is_superuser %}
-                            <li><a href="{% url "alumno-list" %}">Lista Alumnos</a></li>
-                            <li><a href="{% url "alumno-new" %}">Nuevo Alumno</a></li>
-                            <li class="divider"></li>
-                            {% endif %}
-                            {% if not request.user.is_superuser and not perms.reporteria.add_reporter %}
-                            <li><a href="{% url "alumno-tramite" %}">Iniciar Trámite</a></li>
-                            {% endif %}
-                            <li><a href="{% url "alumno-seguimiento" %}">Seguimiento Trámites</a></li>
-                          </ul>
-                    </li>
-                    {% endif %}
-
-                    {% if request.user.is_superuser %}
-                    <li class="dropdown{% if isProfesor %} active{% endif%}">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profesores<b class="caret"></b></a>
-                          <ul class="dropdown-menu">
-                            <li><a href="{% url "profesores-list" %}">Lista Profesores</a></li>
-                            <li><a href="{% url "profesores-new" %}">Nuevo Profesor</a></li>
-                          </ul>
-                    </li>
-                    {% endif %}
-
-                    {% if perms.reporteria.add_reporter %}
-                    <li class="dropdown{% if isReporte %} active{% endif%}">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reportes<b class="caret"></b></a>
-                          <ul class="dropdown-menu">
-                            <li><a href="{% url "reporteria-notas" %}">Reporte Notas</a></li>
-                            <li><a href="#">Reporte de Estadísticas</a></li>
-                          </ul>
-                    </li>
-                  {% endif %}
-                {% endif %}
-
-              <ul class="nav navbar-nav navbar-right">
-                    {% if user.is_authenticated %}
-                      {% if not request.user.is_superuser %}
-                      <li>
-                        <a href="{% url "administrador-user-edit" username=user.username %}">Perfil</a>
-                      </li>
-                      {% endif %}
-                      <li>
-                        <a href="{% url "administrador-logout" %}">Cerrar sesión</a>
-                      </li>
-                    {% else %}
-                      <li>
-                        <a href="{% url "administrador-login" %}">Iniciar sesión</a>
-                      </li>
-                    {% endif %}
-               </ul>
-
-            </div><!-- /.navbar-collapse -->
-          </div><!-- /.container-fluid -->
+            {% endif %}
+            <div class="">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <div>
+                        <a>&nbsp</a>
+                        <a>&nbsp</a>
+                        <a href="/"><img src="{% static "images/main-logo.png" %}" style="width: auto; height: 60px;"></a>
+                        <!-- <a class="navbar-brand">&nbsp Creciendo Unidos</a> -->
+                    </div>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li {% if isHome %} class="active"{% endif%}><a href="/">Inicio</a></li>
+                        {% if user.is_authenticated %}
+                        {% if request.user.is_superuser %}
+                        <li class="dropdown{% if isAdmin %} active{% endif%}">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administrador<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url "administrador-users-list" %}">Lista de Usuarios</a></li>
+                                <li><a href="{% url "administrador-user-new" %}">Nuevo Usuario</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url "administrador-permissions-list" %}">Permisos</a></li>
+                                <li><a href="{% url "administrador-permission-new" %}">Nuevo Permiso</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url "administrador-groups-list" %}">Grupos de Roles</a></li>
+                                <li><a href="{% url "administrador-group-new" %}">Nuevo Grupo de Roles</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown{% if isUniversidad %} active{% endif%}">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Universidad<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url "administrador-faculties-list" %}">Facultades</a></li>
+                                <li><a href="{% url "administrador-faculties-new" %}">Nueva Facultad</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url "administrador-carrera-list" %}">Carrera</a></li>
+                                <li><a href="{% url "administrador-carrera-new" %}">Nueva Carrera</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url "administrador-periodo-list" %}">Periodo</a></li>
+                                <li><a href="{% url "administrador-periodo-new" %}">Nuevo Periodo</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url "administrador-ciclo-list" %}">Ciclos</a></li>
+                                <li><a href="{% url "administrador-ciclo-new" %}">Nuevo Ciclo</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url "administrador-materia-list" %}">Materias</a></li>
+                                <li><a href="{% url "administrador-materia-new" %}">Nueva Materia</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url "administrador-proceso-list" %}">Procesos</a></li>
+                                <li><a href="{% url "administrador-proceso-new" %}">Nuevo Proceso</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        {% if perms.alumno.add_procesoalumno %}
+                        <li class="dropdown{% if isAlumno %} active{% endif%}">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Alumnos<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                {% if request.user.is_superuser %}
+                                <li><a href="{% url "alumno-list" %}">Lista Alumnos</a></li>
+                                <li><a href="{% url "alumno-new" %}">Nuevo Alumno</a></li>
+                                <li class="divider"></li>
+                                {% endif %}
+                                {% if not request.user.is_superuser and not perms.reporteria.add_reporter %}
+                                <li><a href="{% url "alumno-tramite" %}">Iniciar Trámite</a></li>
+                                {% endif %}
+                                <li><a href="{% url "alumno-seguimiento" %}">Seguimiento Trámites</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        {% if request.user.is_superuser %}
+                        <li class="dropdown{% if isProfesor %} active{% endif%}">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profesores<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url "profesores-list" %}">Lista Profesores</a></li>
+                                <li><a href="{% url "profesores-new" %}">Nuevo Profesor</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        {% if perms.reporteria.add_reporter %}
+                        <li class="dropdown{% if isReporte %} active{% endif%}">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reportes<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url "reporteria-notas" %}">Reporte Notas</a></li>
+                                <li><a href="#">Reporte de Estadísticas</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right" style="margin-right: 0px;">
+                        {% if user.is_authenticated %}
+                        {% if not request.user.is_superuser %}
+                        <li>
+                            <a href="{% url "administrador-user-edit" username=user.username %}">Perfil</a>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <a href="{% url "administrador-logout" %}">Cerrar sesión</a>
+                        </li>
+                        {% else %}
+                        <li>
+                            <a href="{% url "administrador-login" %}">Iniciar sesión</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container-fluid -->
         </nav>
-     <div class="blurred-container">
-            <div class="img-src" style="background-image: url('{% static "images/banner.png" %}')"></div>
+        <div class="blurred-container">
+            <div class="img-src" style="background-image: url('{% static "images/banner.png" %}')">
         </div>
-    </div><!--  end navbar -->
-
+    </div>
+</div>
+<!--  end navbar -->
 </div> <!-- end menu-dropdown -->

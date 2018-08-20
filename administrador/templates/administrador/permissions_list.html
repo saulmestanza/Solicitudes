@@ -5,20 +5,15 @@
 {% endblock %}
 
         {% block content %}
-        <div class="container">
-            <div class="row">
-                <div class="col-sm">
-                </div>
-                <div class="col-sm">
-                    <a href="/administrador/permission-new/" class="btn btn-primary form-control">Nuevo Permiso</a>
-                </div>
-                <div class="col-sm">
-                </div>
-            </div>
+        <div class="col-lg-12">
+            <hr>
+            <div class="col-lg-3"></div>
+            <div class="col-lg-6"><a href="/administrador/permission-new/" class="btn btn-primary form-control">Nuevo Permiso</a></div>
+            <div class="col-lg-3"></div>
         </div>
-        <hr>
 
-        <div class="">
+        <div class="col-lg-12 table-responsive">
+            <hr>
             <table id="{{ table_id }}" class="table table-hover">
                 <thead>
                     <tr>
