@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django_session_timeout.middleware.SessionTimeoutMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -68,9 +69,21 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+## SESION EXPIRES
+
+SESSION_EXPIRE_SECONDS = 604800  # 1 Week
+
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+
+## CORS ORIGIN ALL
+
 CORS_ORIGIN_ALLOW_ALL = True
 
+## ROOT URL CONF
+
 ROOT_URLCONF = 'SeguimientoUCSG.urls'
+
+## TEMPLATES
 
 TEMPLATES = [
     {
@@ -162,7 +175,7 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-LOGIN_URL = '#'
+LOGIN_URL = '/'
 
 # Email Settings
 

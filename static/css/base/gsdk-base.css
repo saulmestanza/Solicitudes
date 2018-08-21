@@ -1207,3 +1207,13 @@ input.ct-red + span.switch-left, input.ct-red + span + label + span.switch-right
 .pagination > li.active > a, .pagination > li.active > span, .pagination > li.active > a:hover, .pagination > li.active > span:hover, .pagination > li.active > a:focus, .pagination > li.active > span:focus{
     color: #FFF !important;
 }
+
+.tooltip > .tooltip-inner {
+    background-color: #FED36F; 
+    color: #660c0c; 
+    border: 1px solid #660c0c; 
+    padding: 10px;
+    font-size: 15px;
+}
+
+

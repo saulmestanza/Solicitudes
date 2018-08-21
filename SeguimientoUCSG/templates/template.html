@@ -29,6 +29,7 @@
         <link href="{% static "css/datatables.min.css" %} " rel='stylesheet' type='text/css'/>
 
         <script src="{% static "js/jquery-3.1.0.min.js" %} " type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" type="text/javascript"></script>
         <script src="{% static "js/bootstrap.min.js" %}"></script>
         {% if table_id %}
             <script type="text/javascript" src="{% static "js/datatables.min.js" %}"></script>
@@ -77,7 +78,7 @@
             {% endblock%}
         </div>
 
-        <footer class="footer">
+        <footer class="footer" style="text-align: center; font-size: 13px;">
             <div class="container">
                 <span class="text-muted">&copy; {% now 'Y' %} Seguimiento UCSG.</span>
             </div>
