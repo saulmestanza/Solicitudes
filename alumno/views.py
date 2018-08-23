@@ -323,7 +323,10 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
         email_message.send(fail_silently=False)
 
     def send_mail_to_profesor(self, alumno, profesor, proceso_alumno, nota, request):
-        locale.setlocale(locale.LC_ALL, 'es_ES')
+        if settings.PRODUCTION:
+            locale.setlocale(locale.LC_ALL, 'spanish')
+        else:
+            locale.setlocale(locale.LC_ALL, 'es_ES')
 
         today = datetime.today()
 

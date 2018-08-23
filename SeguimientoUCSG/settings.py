@@ -26,7 +26,7 @@ SECRET_KEY = '=vkplz21=sjyc&t!34@*r*@actn&!f@2l@%9^+zahon#ua!#t!'
 DEBUG = True
 # DEBUG = False
 
-PRODUCTION = False
+PRODUCTION = True
 
 ALLOWED_HOSTS = [
     '178.128.1.122',
