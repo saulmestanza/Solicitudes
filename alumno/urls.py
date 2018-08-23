@@ -20,7 +20,9 @@ urlpatterns = [
 	url(r'^alumno-seguimiento-documento/(?P<id>[\w\-]+)/$', views.HistorialStreamFilesView.as_view(), name='alumno-seguimiento-documento'),
 
 	url(r'^proceso-alumno-new/$', views.ProcesoAlumnoCreateView.as_view(), name='alumno-proceso-new'),
+	url(r'^proceso-alumno-documento/(?P<id>[\w\-]+)/$', views.ProcesoAlumnoStreamFilesView.as_view(), name='proceso-alumno-documento'),
 
 	url(r'^proceso-item-new/$', views.ProcesoAlumnoItemsCreateView.as_view(), name='alumno-proceso-item-new'),
 	url(r'^proceso-item-delete/(?P<id>[\w\-]+)/$', views.ProcesoAlumnoItemsDeleteView.as_view(), name='alumno-proceso-item-delete'),
+	url(r'^proceso-item-documento/(?P<id>[\w\-]+)/$', views.ProcesoAlumnoItemStreamFilesView.as_view(), name='proceso-item-documento'),
 ]

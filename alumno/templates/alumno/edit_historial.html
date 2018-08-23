@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Recuperar Contraseña</title>
+    <title>Bienvenido</title>
     <style>
       /* -------------------------------------
           GLOBAL RESETS
@@ -285,12 +285,16 @@
                   <table border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <p>Hola Alumno, {{ user.first_name }} {{ user.last_name }}</p>
-                        <p>Has solicitidado un cambio de contraseña en el sitio {{ site_name }}.</p>
-                        <p>Tu nueva contraseña es:</p>
-                        <p>{{ token }}</p> 
-                        <p>Ingresar al siguiente <a href="{{ link }}">link</a>, inicia sesión y no olvides de cambiar tu contraseña por una nueva.</p>
-                        <p>Muchas gracias.</p>
+                        <p>Hola, el usuario {{ user.first_name }} {{ user.last_name }} ha comentado sobre el trámite {{ proceso_alumno }} el día de {{ today }}.</p>
+
+                        <li>
+                          <ul>{{ historial.description }}</ul>
+                        </li>
+
+                        <p> Se ha enviado una copia de este correo al alumno, {{ alumno.user.first_name }} {{ alumno.user.last_name }}, profesor de la materia, {{ profesor.user.first_name }} {{ profesor.user.last_name }}, y a Coordinación Académica 1.</p>
+
+                        <p>Para saber el estado de su trámite ingrese a la siguiente <a href="{{ link }}">página</a>, también se enviará notificaciones por este medio a todos los involucrados.</p>
+                        <p>¡Muchas gracias!</p>
                       </td>
                     </tr>
                   </table>

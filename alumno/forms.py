@@ -9,6 +9,8 @@ from django.utils.safestring import mark_safe
 from functools import partial
 from models import *
 from administrador.models import *
+from profesor.models import *
+from choices import STATUS_CHOICE
 
 class AlumnoForm(forms.ModelForm):
     READ_ONLY_FIELDS = []
@@ -296,13 +298,11 @@ class ProcesoAlumnoItemsForm(forms.ModelForm):
 
 
 class ProcesoAlumnoCompleteForm(forms.ModelForm):
-
+    
     description = forms.CharField(widget=forms.Textarea, label='Descripción')
     documento = forms.FileField(label='Documento', required=False)
-
+    extras = forms.ModelMultipleChoiceField(required=False, queryset=Profesor.objects.all())
     input_nota_0 = forms.CharField(required=False, label='Nota')
-    input_nota_1 = forms.CharField(required=False, label='Nota #2')
-    input_nota_2 = forms.CharField(required=False, label='Nota #3')
 
     class Meta:
         model = ProcesoAlumno
@@ -311,12 +311,11 @@ class ProcesoAlumnoCompleteForm(forms.ModelForm):
             'process',
             'alumn',
             'subject',
+            'extras',
             'creation_date',
             'description',
             'documento',
             'input_nota_0',
-            'input_nota_1',
-            'input_nota_2',
         )
         exclude =('deleted', )
 
@@ -338,7 +337,8 @@ class ProcesoAlumnoCompleteForm(forms.ModelForm):
 
 class HistorialForm(forms.ModelForm):
 
-    description = forms.CharField(widget=forms.Textarea, label='Descripción')
+    description = forms.CharField(widget=forms.Textarea, label=u'Descripción')
+    is_ok = forms.BooleanField(required=False)
 
     class Meta:
         model = Historial
@@ -346,6 +346,7 @@ class HistorialForm(forms.ModelForm):
             'description',
             'document',
             'process_alumno',
+            'is_ok',
             'status',
             'created_by',
         )

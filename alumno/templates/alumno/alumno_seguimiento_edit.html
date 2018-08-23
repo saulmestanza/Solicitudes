@@ -6,31 +6,177 @@
 
 {% block content%}
 
-{% include "form_bootstrap.html" with submit_value="Guardar" show_help_texts_in_hidden="True" %}
+<div>
+    {% if process_alumno_items %}
+    <div class="well">
+        <p><strong>Temas a Recalificar:</strong></p>
+        <ul>
+        {% for item in process_alumno_items %}
+            <li>{{ item.name }}: {{ item.description }}. {% if item.document %} <a target="_blank" href="/alumno/proceso-alumno-documento/{{ item.id }}/">Documento</a> {% endif %}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+<form class="form-horizontal" method="POST" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div id="id_status_div" class="form-group row status ">
+        <label class="col-sm-2 form-control-label">*Estado:</label>
+        <div class="col-sm-10">
+            <select name="status" class="form-control" id="id_status">
+                <option value="{{ proceso_alumno.status }}"> {{ proceso_alumno.status_verbose }} </option>
+                {% if proceso_alumno.status == "IN" %}
+                    {% if user.is_superuser or user.is_staff %}
+                    <option value="ER">En Revisión</option>
+                    {% endif %}
+                
+                {% elif proceso_alumno.status == "ER" %}
+                    {% if user.is_superuser or user.is_staff %}
+                    <option value="ET">En Tránsito</option>
+                    <option value="CN">Cancelado</option>
+                    {% endif %}
+                
+                {% elif proceso_alumno.status == "ET" %}
+                    <option value="ID">Ingreso nota por Docente</option>
+                
+                {% elif proceso_alumno.status == "ID" %}
+                    {% if user.is_superuser or user.is_staff %}
+                    {% if 'Gracia' in proceso_alumno.process.name %}
+                    <option value="FN">Finalizado</option>
+                    {% endif %}
+                    {% endif %}
+                
+                {% elif proceso_alumno.status == "AE" %}
+                    {% if user.is_superuser or user.is_staff %}
+                    <option value="FN">Finalizado</option>
+                    {% endif %}
+
+                {% elif proceso_alumno.status == "RE" %}
+                    <option value="IR">Ingreso nota por Docentes Recalificadores</option>
+
+                {% elif proceso_alumno.status == "IR" %}
+                    {% if user.is_superuser or user.is_staff %}
+                    <option value="FN">Finalizado</option>
+                    {% endif %}
+                
+                {% endif %}
+            </select>
+        </div>
+    </div>
+
+    <div id="id_process_div" class="form-group row process ">
+        <label class="col-sm-2 form-control-label">*Proceso:</label>
+        <div class="col-sm-10">
+            <select name="process" readonly="readonly" required="" class="form-control" id="id_process">
+                <option value="{{ proceso_alumno.process.id }}" selected>{{proceso_alumno.process.name}}</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="id_alumn_div" class="form-group row alumn ">
+        <label class="col-sm-2 form-control-label">*Alumno:</label>
+        <div class="col-sm-10">
+            <select name="alumn" readonly="readonly" required="" class="form-control" id="id_alumn">
+                <option value="{{ proceso_alumno.alumn.id }}" selected>{{proceso_alumno.alumn}}</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="id_subject_div" class="form-group row subject ">
+        <label class="col-sm-2 form-control-label">*Materia:</label>
+        <div class="col-sm-10">
+            <select name="subject" readonly="readonly" required="" class="form-control" id="id_subject">
+                <option value="{{ proceso_alumno.subject.id }}" selected>{{ proceso_alumno.subject }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="id_creation_date_div" class="form-group row creation_date ">
+        <label class="col-sm-2 form-control-label">*Fecha Creación:</label>
+        <div class="col-sm-10">
+            <input type="text" name="creation_date" value="{{proceso_alumno.creation_date|date:'Y-m-d'}}" readonly="readonly" required="" class="form-control" id="id_creation_date"><input type="hidden" name="initial-creation_date" value="{{proceso_alumno.creation_date|date:'Y-m-d'}}" id="initial-id_creation_date">
+        </div>
+    </div>
+
+    <div id="id_description_div" class="form-group row description ">
+        <label class="col-sm-2 form-control-label">*Descripción:</label>
+        <div class="col-sm-10">
+            <textarea name="description" {% if proceso_alumno.status == 'CN' or proceso_alumno.status == 'FN' %} disabled {% endif %} id="id_description" required="" rows="10" cols="40" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <div id="id_documento_div" class="form-group row documento ">
+        <label class="col-sm-2 form-control-label">Documento:</label>
+        <div class="col-sm-10">
+            <input {% if proceso_alumno.status == 'CN' or proceso_alumno.status == 'FN' %} disabled {% endif %} type="file" name="documento" class="form-control" id="id_documento">
+        </div>
+    </div>
+
+    <div id="id_extras_div" class="form-group row extras " style="display: none;">
+        <label class="col-sm-2 form-control-label">Seleccione profesores para asignar como recalificadores:</label>
+        <div class="col-sm-10">
+            <select multiple class="form-control" name="extras" id="id_extras">
+                {% for profesor in profesores %}
+                <option value="{{ profesor.id }}">{{ profesor }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div id="id_input_nota_0_div" class="form-group row input_nota_0" style="display: none;">
+        <label class="col-sm-2 form-control-label">Nota:</label>
+        <div class="col-sm-10">
+            <input type="text" name="input_nota_0" class="form-control" id="id_input_nota_0"
+            {% for notes in proceso_alumno.notes.all %}
+            {% if user.first_name in notes.profesor and user.last_name in notes.profesor %}
+                value="{{ notes.nota }} "
+                disabled 
+            {% endif %}
+            {% endfor %}
+            >
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-12">
+                <div class="col-lg-5"></div>
+                <div class="col-lg-2"><input {% if proceso_alumno.status == 'CN' or proceso_alumno.status == 'FN' %} disabled {% endif %} id="id_Guardar" class="btn btn-primary form-control" type="submit" value="Guardar"></div>
+                <div class="col-lg-5"></div>
+            </div>
+        </div>
+    </div>
+</form>
 
 {% block javascript %}
     <script type="text/javascript">
     	$(document).ready(function(){
-    		document.getElementById('id_input_nota_0_div').style.display = "none";
-    		document.getElementById('id_input_nota_1_div').style.display = "none";
-    		document.getElementById('id_input_nota_2_div').style.display = "none";
+            {% if user.is_superuser and user.is_staff %}
+            if(document.getElementById('id_status').value == 'RE'){
+                document.getElementById('id_extras_div').style.display = "";
+            }else if(document.getElementById('id_status').value != 'IR'){
+                document.getElementById('id_extras_div').style.display = "none";
+            }
+            {% endif %}
+
+            {% if not user.is_superuser and not user.is_staff %}
+            if(document.getElementById('id_status').value == 'ID' || document.getElementById('id_status').value == 'IR'){
+                document.getElementById('id_input_nota_0_div').style.display = "";
+            }else if(document.getElementById('id_status').value != 'ID' && document.getElementById('id_status').value != 'IR'){
+                document.getElementById('id_input_nota_0_div').style.display = "none";
+            }
+            {% endif %}
     	});
+
     	$('#id_status').change(function(){
-    		if(document.getElementById('id_status').value == 'FN'){
-    			{% if 'Gracia' in proceso_alumno.process.name %}
-    				console.log('d');
-    				document.getElementById('id_input_nota_0_div').style.display = "";
-    			{% else %}
-    				console.log('2');
-    				document.getElementById('id_input_nota_0_div').style.display = "";
-    				document.getElementById('id_input_nota_1_div').style.display = "";
-    				document.getElementById('id_input_nota_2_div').style.display = "";
-    			{% endif %}
-    		}else{
+            {% if not user.is_superuser and not user.is_staff %}
+    		if(document.getElementById('id_status').value == 'ID' || document.getElementById('id_status').value == 'IR'){
+    			document.getElementById('id_input_nota_0_div').style.display = "";
+    		}else if(document.getElementById('id_status').value != 'ID' && document.getElementById('id_status').value != 'IR'){
     			document.getElementById('id_input_nota_0_div').style.display = "none";
-    			document.getElementById('id_input_nota_1_div').style.display = "none";
-    			document.getElementById('id_input_nota_2_div').style.display = "none";
     		}
+            {% endif %}
         });
 	</script>
 {% endblock %}

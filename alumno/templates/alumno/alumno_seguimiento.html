@@ -53,7 +53,7 @@
                 <tbody>
                     {% for proceso_alumno in object_list %}
                       {% if profesor %}
-                        {% if proceso_alumno.subject in profesor.subjects.all %}
+                        {% if proceso_alumno.subject in profesor.subjects.all or profesor in proceso_alumno.extras.all %}
                           <tr>
                               <td>{{proceso_alumno.id}}</td>
                               <td>{{proceso_alumno.process.name}}</td>

@@ -275,6 +275,7 @@ class ProcesoForm(forms.ModelForm):
         model = Proceso
         fields = (
             'name',
+            'requirements',
             'proceso_items',
             'deleted',
         )

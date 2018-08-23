@@ -43,6 +43,7 @@ class Materia(models.Model):
 
 class Proceso(models.Model):
     name = models.CharField(max_length=128, verbose_name=_(u'Nombre'))
+    requirements = models.CharField(max_length=256, verbose_name=_(u'Requerimientos'))
     proceso_items = models.ManyToManyField('ProcesoItems', verbose_name=_(u'Descripción'))
     deleted = models.BooleanField(default=False, verbose_name=_('Deshabilitado'))
     

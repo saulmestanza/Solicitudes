@@ -1,19 +1,32 @@
 {% extends "base.html" %}
 
 {% block header %}
-    {% include "navbar.html" with isAlumno="true" %}
+	{% include "navbar.html" with isAlumno="true" %}
 {% endblock %}
 
 {% block content %}
+	{% if process_alumno.notes.all %}
+		<div class="well">
+			<p><strong>Nota(s)</strong></p>
+			{% for nota in process_alumno.notes.all %}
+				<p>Nota: {{ nota.nota }}</p>
+			{% endfor %}
+		</div>
+	{% endif %}
+	<hr>
+	{% if process_alumno_items %}
 	<div class="well">
-		{% if process_alumno.notes.all %}
-            <p>Notas:</p>
-            {% for nota in process_alumno.notes.all %}
-            	<p>Nota: {{ nota.nota }}</p>
-            {% endfor %}
-        {% endif %}
-        <hr>
-		{% for historial in historials %}
+		<p><strong>Temas a Recalificar:</strong></p>
+		<ul>
+		{% for item in process_alumno_items %}
+			<li>{{ item.name }}: {{ item.description }}. {% if item.document %} <a target="_blank" href="/alumno/proceso-alumno-documento/{{ item.id }}/">Documento</a> {% endif %}</li>
+		{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	<hr>
+	{% for historial in historials %}
+		<div class="well">
 			<div class="row">
 				<div class="col-lg-12">
 					<p><b>Estado :</b> {{ historial.status }}</p>
@@ -22,36 +35,67 @@
 					<p><b>Creado Por: </b> {{ historial.created_by }}</p>
 					{% if historial.document %}
 						<a target="_blank" href="/alumno/alumno-seguimiento-documento/{{ historial.id }}/">Documento</a>
-					{% endif %}
-					
+					{% endif %}	
 				</div>
 			</div>
-			<hr>
-		{% endfor %}
-	</div>
+		</div>
+	{% endfor %}
 
 	<form class="form-horizontal" action="" method="POST" enctype="multipart/form-data">
-	    {% csrf_token %}
-	    <p><big>Puedes responder llenando la siguiente información</big></p>
-	    <input type="hidden" name="process_alumno" class="form-control" id="id_process_alumno" value="{{ process_alumno.id }}">
-	    <input type="hidden" name="status" class="form-control" id="id_status" value="{{ process_alumno.status_verbose }}">
-	    <input type="hidden" name="created_by" class="form-control" id="id_created_by" value="{{ request.user.first_name }} {{ request.user.last_name }}">
-	    <div id="id_description_div" class="form-group row description ">
-	        <label class="col-sm-2 form-control-label">*Descripción:</label>
-	        <div class="col-sm-10">
-	            <textarea name="description" id="id_description" required="" rows="10" cols="40" class="form-control"></textarea>
-	        </div>
-	    </div>
-	    <div id="id_document_div" class="form-group row document ">
-	        <label class="col-sm-2 form-control-label">Documento:</label>
-	        <div class="col-sm-10">
-	            <input type="file" name="document" class="form-control" id="id_document">
-	        </div>
-	    </div>
-	    <div class="form-actions">
-	        <div class="row text-center">
-	            <input id="id_Guardar" class="btn btn-primary" type="submit" value="Guardar">
-	        </div>
-	    </div>
+		{% csrf_token %}
+		{% if process_alumno.status == 'ID' and not 'Gracia' in process_alumno.process.name %}
+		{% if user.first_name == process_alumno.alumn.user.first_name and user.last_name == process_alumno.alumn.user.last_name and not process_alumno.is_ok %}
+		<hr>
+		<div id="id_description_div" class="form-group row is_ok ">
+			<div class="col-sm-12">
+				<label class="form-check-label" for="is_ok"><big>Indique si esta usted de acuerdo o no con la nota ingresada por el docente. Si usted no esta de acuerdo se procederá a seleccionar dos docentes recalificadores para que revisen su caso.</big></label>
+			</div>
+			<div class="col-sm-10">
+				<input type="checkbox" class="form-check-input" id="is_ok" name="is_ok">
+				<label class="form-check-label" for="is_ok"><big>Estoy de acuerdo con la información presente en esta solicitud</big></label>
+			</div>
+		</div>
+		<hr>
+		{% endif %}
+		{% endif %}
+
+		<p><big>Puedes responder llenando la siguiente información</big></p>
+		<input type="hidden" name="process_alumno" class="form-control" id="id_process_alumno" value="{{ process_alumno.id }}">
+		<input type="hidden" name="status" class="form-control" id="id_status" value="{{ process_alumno.status_verbose }}">
+		<input type="hidden" name="created_by" class="form-control" id="id_created_by" value="{{ request.user.first_name }} {{ request.user.last_name }}">
+		<div id="id_description_div" class="form-group row description ">
+			<label class="col-sm-2 form-control-label">*Descripción:</label>
+			<div class="col-sm-10">
+				<textarea name="description" {% if process_alumno.status == 'CN' or process_alumno.status == 'FN' %} disabled {% endif %} id="id_description" required="" rows="10" cols="40" class="form-control"></textarea>
+			</div>
+		</div>
+		<div id="id_document_div" class="form-group row document ">
+			<label class="col-sm-2 form-control-label">Documento:</label>
+			<div class="col-sm-10">
+				<input type="file" name="document" {% if process_alumno.status == 'CN' or process_alumno.status == 'FN' %} disabled {% endif %} class="form-control" id="id_document">
+			</div>
+		</div>
+		<div class="form-actions">
+			<div class="row text-center">
+				<input id="id_Guardar" {% if process_alumno.status == 'CN' or process_alumno.status == 'FN' %} disabled {% endif %} class="btn btn-primary" type="submit" value="Guardar">
+			</div>
+		</div>
 	</form>
+
+{% block javascript %}
+    <script type="text/javascript">
+    	$(document).ready(function(){
+    		document.getElementById('is_ok').checked = true;
+    		document.getElementById('id_description').value = "Estoy de acuerdo con la información presente en esta solicitud y con la nota asignada.";
+    	});
+    	$('#is_ok').change(function(){
+    		if(this.checked){
+    			document.getElementById('id_description').value = "Estoy de acuerdo con la información presente en esta solicitud y con la nota asignada.";
+    		}else{
+    			document.getElementById('id_description').value = "No estoy de acuerdo con la información presente en esta solicitud y con la nota asignada.";
+    		}
+        });
+	</script>
+{% endblock %}
+
 {% endblock %}

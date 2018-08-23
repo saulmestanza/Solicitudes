@@ -6,6 +6,7 @@ from django.views.generic import View
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.views.generic import DeleteView, TemplateView
+from django.core.files import File
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
@@ -26,10 +27,26 @@ from models import *
 from serializers import *
 from profesor.models import *
 from administrador.models import *
+
+"""
+from mimetypes import MimeTypes
+from pyPdf import PdfFileWriter, PdfFileReader
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.units import cm
+"""
+from docx import Document
+from docx.shared import Inches, Cm
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+
 import json
 import random
+import StringIO
 import string
 import os
+import locale
+from os import path as os_path, SEEK_SET as os_SEEK_SET
 
 # Create your views here.
 class AlumnoListView(UserPassesTestMixin, ListView):
@@ -281,10 +298,7 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
 
     def send_mail_to_user(self, alumno, profesor, proceso_alumno, historial, request):
         _user_ = User.objects.filter(is_superuser=True).first()
-        if 'Gracia' in proceso_alumno.process.name:
-            _to_ = [alumno.user.email, _user_.email]
-        else:
-            _to_ = [alumno.user.email, profesor.user.email, _user_.email]
+        _to_ = [alumno.user.email, profesor.user.email, _user_.email]
         context = {
             'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
             'site_name': 'Seguimiento UCSG',
@@ -308,27 +322,156 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
         email_message.content_subtype = 'html'
         email_message.send(fail_silently=False)
 
+    def send_mail_to_profesor(self, alumno, profesor, proceso_alumno, nota, request):
+        locale.setlocale(locale.LC_ALL, 'es_ES')
+
+        today = datetime.today()
+
+        document = Document()
+        sections = document.sections
+        for section in sections:
+            section.top_margin = Cm(0.5)
+
+        p =document.add_picture(settings.BASE_DIR+'/header.png', width=Inches(3))
+        last_paragraph = document.paragraphs[-1] 
+        last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        document.add_paragraph('')
+
+        p = document.add_paragraph('Guayaquil {0:%d} de {0:%B} del {0:%Y}.'.format(today))
+        last_paragraph = document.paragraphs[-1] 
+        last_paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
+        document.add_paragraph('')
+        document.add_paragraph('')
+
+        document.add_paragraph('De mis consideraciones')
+        last_paragraph = document.paragraphs[-1] 
+        last_paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+        document.add_paragraph('')
+        document.add_paragraph('')
+
+        body = "Yo ,%s %s , docente de la carrera %s, Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."%(
+            profesor.first_name, profesor.last_name, proceso_alumno.subject.cicles.carrer.name
+            )
+        document.add_paragraph(body)
+        last_paragraph = document.paragraphs[-1] 
+        last_paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    
+        # add table ------------------
+        table = document.add_table(1, 4)
+        table.style = 'TableGrid'
+        # populate header row --------
+        heading_cells = table.rows[0].cells
+        heading_cells[0].text = 'Carrera'
+        heading_cells[1].text = 'Materia'
+        heading_cells[2].text = 'Parcial'
+        heading_cells[3].text = 'Nota'
+
+        # add a data row for each item
+        cells = table.add_row().cells
+        cells[0].text = proceso_alumno.subject.cicles.carrer.name
+        cells[1].text = proceso_alumno.subject.name
+        if 'Gracia' in proceso_alumno.process.name:
+            cells[2].text = 'Examen de Gracia'
+        else:
+            cells[2].text = proceso_alumno.parcial
+        cells[3].text = nota.nota
+
+        document.add_paragraph('')
+
+        document.add_paragraph('Atentamente,')
+
+        document.add_paragraph('')
+
+        document.add_paragraph('%s %s'%(profesor.first_name, profesor.last_name))
+        document.add_paragraph('_________________________________')
+
+        document.save(settings.BASE_DIR+'/formato_notas.docx')
+        _file_ = File(open(settings.BASE_DIR+'/formato_notas.docx', 'rb'))
+        _to_ = [profesor.email, alumno.user.email]
+        context = {
+            'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
+            'site_name': 'Seguimiento UCSG',
+            'protocol': 'https',
+            'proceso_alumno': proceso_alumno,
+            'today':datetime.today(),
+        }
+        email_template_name = 'alumno/register_nota_profesor.html'
+        subject = proceso_alumno
+        email = loader.get_template(email_template_name).render(context)
+        email_message = EmailMessage(
+            subject,
+            email,
+            to=_to_,
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        email_message.content_subtype = 'html'
+        email_message.attach("formato_notas.docx", _file_.read(), 'application/docx')
+        email_message.send(fail_silently=False)
+
+    def send_mail_to_recalificador(self, alumno, profesor, proceso_alumno, request):
+        _to_ = [profesor.email, alumno.user.email]
+        procesoalumnoitem = ProcesoAlumnoItems.objects.filter(process_alumno_id = proceso_alumno.id)
+        context = {
+            'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
+            'site_name': 'Seguimiento UCSG',
+            'protocol': 'https',
+            'alumno': alumno,
+            'profesor': profesor,
+            'proceso_alumno': proceso_alumno,
+            'proceso_alumno_items': procesoalumnoitem,
+            'today':datetime.today(),
+        }
+        email_template_name = 'alumno/recalificador_sign_in.html'
+        subject = proceso_alumno
+        email = loader.get_template(email_template_name).render(context)
+        email_message = EmailMessage(
+            subject,
+            email,
+            to=_to_,
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        email_message.content_subtype = 'html'
+        email_message.send(fail_silently=False)
+
     def test_func(self):
         return self.request.user
-        
-    def get_object(self, queryset=None):
-        if not ProcesoAlumno.objects.filter(pk=self.kwargs['id']).exists():
-            raise Http404
-        proceso_alumno = ProcesoAlumno.objects.get(pk=self.kwargs['id'])
-        if proceso_alumno.deleted:
-            raise Http404
-        return proceso_alumno
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            print form.errors
 
     def form_valid(self, form):
         clean = form.cleaned_data
         description =  clean['description']
         document = clean['documento']
         try:
-            response = super(AlumnoSeguimientoItemUpdateView, self).form_valid(form)
+            response = HttpResponseRedirect('/alumno/alumno-seguimiento/')
             proceso_alumno = ProcesoAlumno.objects.filter(pk=self.kwargs['id']).first()
+            proceso_alumno.status = clean['status']
+            if clean['status'] == 'RE':
+                proceso_alumno.status = 'IR'
+            proceso_alumno.save()
             alumno = Alumno.objects.filter(pk=proceso_alumno.alumn_id).first()
             materia = Materia.objects.filter(name=proceso_alumno.subject).first()
             profesor = Profesor.objects.filter(subjects=materia).first()
+
+            # Extras profesores
+            extras = clean['extras']
+            if extras:
+                for profe in extras: 
+                    if not (profe in proceso_alumno.extras.all()):
+                        self.send_mail_to_recalificador(alumno, profe.user, proceso_alumno, self.request)
+                        proceso_alumno.extras.add(profe)
+                        proceso_alumno.save()
+
+            # Crear historial
             historial = Historial.objects.create(
                 process_alumno=proceso_alumno, 
                 status = proceso_alumno.status_verbose(),
@@ -338,38 +481,19 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
             )
             historial.save()
 
-            if 'Gracia' in proceso_alumno.process.name:
-                if clean['input_nota_0']:
-                    nota = Nota.objects.create(
-                        profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
-                        nota = clean['input_nota_0']
-                    )
-                    nota.save()
-                    if not (nota in proceso_alumno.notes.all()):
-                        proceso_alumno.notes.add(nota)
-            else:
-                if clean['input_nota_0']:
-                    nota = Nota.objects.create(
-                        profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
-                        nota = clean['input_nota_0']
-                    )
-                    nota.save()
-                    if not (nota in proceso_alumno.notes.all()):
-                        proceso_alumno.notes.add(nota)
-                    nota = Nota.objects.create(
-                        profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
-                        nota = clean['input_nota_1']
-                    )
-                    nota.save()
-                    if not (nota in proceso_alumno.notes.all()):
-                        proceso_alumno.notes.add(nota)
-                    nota = Nota.objects.create(
-                        profesor = "%s %s"%(profesor.user.first_name, profesor.user.last_name),
-                        nota = clean['input_nota_2']
-                    )
-                    nota.save()
-                    if not (nota in proceso_alumno.notes.all()):
-                        proceso_alumno.notes.add(nota)
+            # Guardar notas
+            if clean['input_nota_0']:
+                nota = Nota.objects.create(
+                    profesor = "%s %s"%(self.request.user.first_name, self.request.user.last_name),
+                    nota = clean['input_nota_0']
+                )
+                nota.save()
+                if not (nota in proceso_alumno.notes.all()):
+                    proceso_alumno.notes.add(nota)
+                    proceso_alumno.save()
+                    self.send_mail_to_profesor(alumno, self.request.user, proceso_alumno, nota, self.request)
+
+            # Enviar correo
             self.send_mail_to_user(alumno, profesor, proceso_alumno, historial, self.request)
         except Exception, e:
             print e
@@ -380,10 +504,20 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
     def form_invalid(self, form):
         return super(AlumnoSeguimientoItemUpdateView, self).form_invalid(form)
 
+    def get_object(self, queryset=None):
+        if not ProcesoAlumno.objects.filter(pk=self.kwargs['id']).exists():
+            raise Http404
+        proceso_alumno = ProcesoAlumno.objects.get(pk=self.kwargs['id'])
+        if proceso_alumno.deleted:
+            raise Http404
+        return proceso_alumno
+
     def get_context_data(self, **kwargs):
         context = super(AlumnoSeguimientoItemUpdateView, self).get_context_data(**kwargs)
         context['tittle'] = "Seguimiento de Trámites"
         context['proceso_alumno'] = self.get_object()
+        context['process_alumno_items'] = ProcesoAlumnoItems.objects.filter(process_alumno=self.get_object())
+        context['profesores'] = Profesor.objects.filter(deleted=False, user__is_active=True)
         context['profesor'] = Profesor.objects.filter(subjects=self.get_object().subject.id).first()
         context['motto'] = "Bandeja de seguimiento - Editar"
         return context
@@ -454,10 +588,7 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
 
     def send_mail(self, alumno, profesor, proceso_alumno, request):
         _user_ = User.objects.filter(is_superuser=True).first()
-        if 'Gracia' in proceso_alumno.process.name:
-            _to_ = [alumno.user.email, _user_.email]
-        else:
-            _to_ = [alumno.user.email, profesor.user.email, _user_.email]
+        _to_ = [alumno.user.email, profesor.user.email, _user_.email]
         procesoalumnoitem = ProcesoAlumnoItems.objects.filter(process_alumno_id = proceso_alumno.id)
         context = {
             'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
@@ -496,7 +627,7 @@ class AlumnoTramiteCreate(UserPassesTestMixin, CreateView):
             historial = Historial.objects.create(
                 process_alumno = proceso_alumno,
                 status = proceso_alumno.status_verbose(),
-                description = "Trámite %s Ingresado por el Alumno %s %s"%(
+                description = u"Trámite %s Ingresado por el Alumno %s %s"%(
                     proceso_alumno.process.name,
                     alumno.user.first_name,
                     alumno.user.last_name
@@ -542,22 +673,20 @@ class HistorialCreateView(UserPassesTestMixin, CreateView):
 
     def send_mail(self, alumno, profesor, proceso_alumno, historial, request):
         _user_ = User.objects.filter(is_superuser=True).first()
-        if 'Gracia' in proceso_alumno.process.name:
-            _to_ = [alumno.user.email, _user_.email]
-        else:
-            _to_ = [alumno.user.email, profesor.user.email, _user_.email]
+        _to_ = [alumno.user.email, profesor.user.email, _user_.email]
         context = {
             'domain': "%s%s"%('http://', request.META['HTTP_HOST']),
             'site_name': 'Seguimiento UCSG',
             'protocol': 'https',
             'alumno': alumno,
+            'user': self.request.user,
             'profesor': profesor,
             'historial': historial,
             'proceso_alumno': proceso_alumno,
             'today':datetime.today(),
             'link': "%s%s%s"%('http://', request.META['HTTP_HOST'], reverse('alumno-seguimiento')),
         }
-        email_template_name = 'alumno/edit_process.html'
+        email_template_name = 'alumno/edit_historial.html'
         subject = proceso_alumno
         email = loader.get_template(email_template_name).render(context)
         email_message = EmailMessage(
@@ -573,6 +702,8 @@ class HistorialCreateView(UserPassesTestMixin, CreateView):
         return self.request.user.is_active
 
     def form_valid(self, form):
+        clean = form.cleaned_data
+        is_ok =  clean['is_ok']
         try:
             context = self.get_context_data()
             self.object = form.save()
@@ -580,6 +711,16 @@ class HistorialCreateView(UserPassesTestMixin, CreateView):
             
             historial = Historial.objects.filter(pk=form.instance.id).first()
             proceso_alumno = ProcesoAlumno.objects.filter(pk=self.kwargs['id']).first()
+            proceso_alumno.is_ok = is_ok
+            # Recalificacion
+            if not 'Gracia' in proceso_alumno.process.name:
+                if is_ok and proceso_alumno.status == 'ID':
+                    proceso_alumno.status = 'AE'
+                elif not is_ok and proceso_alumno.status == 'ID':
+                    proceso_alumno.status = 'RE'
+            proceso_alumno.save()
+            historial.status = proceso_alumno.status_verbose()
+            historial.save()
             alumno = proceso_alumno.alumn
             materia = Materia.objects.filter(name=proceso_alumno.subject).first()
             profesor = Profesor.objects.filter(subjects=materia).first()
@@ -598,7 +739,9 @@ class HistorialCreateView(UserPassesTestMixin, CreateView):
         context = super(HistorialCreateView, self).get_context_data(**kwargs)
         context['tittle'] = "Seguimiento de Trámites"
         context['motto'] = "Bandeja de seguimiento - Historial"
-        context['process_alumno'] = ProcesoAlumno.objects.filter(pk=self.kwargs['id']).first()
+        proceso_alumno = ProcesoAlumno.objects.filter(pk=self.kwargs['id']).first()
+        context['process_alumno'] = proceso_alumno
+        context['process_alumno_items'] = ProcesoAlumnoItems.objects.filter(process_alumno=proceso_alumno)
         context['historials'] = Historial.objects.filter(process_alumno_id=self.kwargs['id'])
         return context
 
@@ -621,6 +764,46 @@ class HistorialStreamFilesView(View):
         if historial.document:
             document = historial.document.read()
             _split_ = os.path.splitext(str(historial.document))
+            print "application/"+_split_[1][1:]
+            return HttpResponse(document, content_type="application/"+_split_[1][1:])
+        raise Http404
+
+
+class ProcesoAlumnoStreamFilesView(View):
+    model = ProcesoAlumno
+
+    def get_object(self):
+        id = self.kwargs['id']
+        if not self.model.objects.filter(id=id).exists():
+            raise Http404
+        process = self.model.objects.get(id=id)
+        return process
+
+    def get(self, request, *args, **kwargs):
+        process = self.get_object()
+        if process.document:
+            document = process.document.read()
+            _split_ = os.path.splitext(str(process.document))
+            print "application/"+_split_[1][1:]
+            return HttpResponse(document, content_type="application/"+_split_[1][1:])
+        raise Http404
+
+
+class ProcesoAlumnoItemStreamFilesView(View):
+    model = ProcesoAlumnoItems
+
+    def get_object(self):
+        id = self.kwargs['id']
+        if not self.model.objects.filter(id=id).exists():
+            raise Http404
+        item = self.model.objects.get(id=id)
+        return item
+
+    def get(self, request, *args, **kwargs):
+        item = self.get_object()
+        if item.document:
+            document = item.document.read()
+            _split_ = os.path.splitext(str(item.document))
             print "application/"+_split_[1][1:]
             return HttpResponse(document, content_type="application/"+_split_[1][1:])
         raise Http404

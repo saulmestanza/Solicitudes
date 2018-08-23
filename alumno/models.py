@@ -6,7 +6,9 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from django.utils import formats, timezone
 from administrador.models import *
+from profesor.models import *
 from .validators import validate_file_extension
+from choices import STATUS_CHOICE
 
 class Alumno(models.Model):
     user = models.OneToOneField(User)
@@ -20,20 +22,10 @@ class Alumno(models.Model):
 
 class Nota(models.Model):
     profesor = models.CharField(max_length=256, verbose_name=_(u'Profesor'))
-    nota = models.CharField(max_length=256, verbose_name=_(u'Nota'))
-    description = models.CharField(max_length=1024, verbose_name=_(u'Descripción'), blank=True, null=True)
-    creation_date = models.DateField(default=timezone.now, verbose_name=_('Fecha Creación'))
+    nota = models.CharField(max_length=5, verbose_name=_(u'Nota'))
+    creation_date = models.DateField(default=timezone.now, verbose_name=_(u'Fecha Creación'))
 
 class ProcesoAlumno(models.Model):
-    STATUS_CHOICE=[
-    ('IN' , u'Ingresado'),
-    ('ET' , u'En tránsito'),
-    ('CN' , u'Cancelado'),
-    ('RC' , u'Rechazado'),
-    ('ER' , u'En Revisión'),
-    ('FN' , u'Finalizado'),
-    ('AC' , u'Aceptado'),
-    ]
     status = models.CharField(
         max_length=2,
         choices=STATUS_CHOICE,
@@ -42,16 +34,18 @@ class ProcesoAlumno(models.Model):
     )
     process = models.ForeignKey(Proceso, on_delete=models.CASCADE, verbose_name=_('Proceso'))
     alumn = models.ForeignKey(Alumno, on_delete=models.CASCADE, verbose_name=_('Alumno'))
-    creation_date = models.DateField(default=timezone.now, verbose_name=_('Fecha Creación'))
+    creation_date = models.DateField(default=timezone.now, verbose_name=_(u'Fecha Creación'))
     subject = models.ForeignKey(Materia, on_delete=models.CASCADE, verbose_name=_('Materia'))
     parcial = models.CharField(max_length=256, verbose_name=_(u'Parcial'), blank=True, null=True)
     periodo = models.CharField(max_length=256, verbose_name=_(u'Periodo'), blank=True, null=True)
     notes = models.ManyToManyField(Nota)
+    is_ok = models.BooleanField(verbose_name=u'Estudiante de acuerdo con su nota', default=False)
+    extras = models.ManyToManyField(Profesor, verbose_name=_(u'Profesores Recalificación'))
     document = models.FileField(verbose_name=u'Documento', upload_to='documents/%Y/%m/%d', blank=True, null=True, validators=[validate_file_extension])
     deleted = models.BooleanField(default=False)
     
     def status_verbose(self):
-        return dict(ProcesoAlumno.STATUS_CHOICE)[self.status]
+        return dict(STATUS_CHOICE)[self.status]
 
     def __unicode__(self):
         return "%s - %s"%(self.process.name, self.subject.name)
@@ -61,7 +55,7 @@ class ProcesoAlumnoItems(models.Model):
     process_alumno = models.ForeignKey(ProcesoAlumno, on_delete=models.CASCADE, verbose_name=_('Proceso'))
     name = models.CharField(max_length=128, verbose_name=_(u'Tema'))
     description = models.CharField(max_length=1024, verbose_name=_(u'Descripción'))
-    creation_date = models.DateField(default=timezone.now, verbose_name=_('Fecha Creación'))
+    creation_date = models.DateField(default=timezone.now, verbose_name=_(u'Fecha Creación'))
     document = models.FileField(verbose_name=u'Documento', upload_to='documents/%Y/%m/%d', blank=True, null=True, validators=[validate_file_extension])
     deleted = models.BooleanField(default=False)
     

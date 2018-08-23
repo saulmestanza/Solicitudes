@@ -17,6 +17,12 @@
             {% endif %}
         </div>
     </div>
+    <div id="id_requirements_div" class="form-group row requirements ">
+        <label class="col-sm-2 form-control-label">*Requerimientos:</label>
+        <div class="col-sm-10">
+            <textarea data-toggle="tooltip" data-placement="top" title="Requerimientos para aplicar al Proceso" type="text" name="requirements" id="id_requirements" required="" class="form-control" maxlength="256" rows="6">{{ proceso_.requirements }}</textarea>
+        </div>
+    </div>
     <div id="id_proceso_items_div" class="form-group row proceso_items ">
         <label class="col-sm-2 form-control-label">*Descripción:</label>
         <div class="col-sm-10">

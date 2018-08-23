@@ -8,13 +8,13 @@
 <style type="text/css">
     .speech-bubble-1 {
         width: 260px;
-        background: #00aabb;
+        background: #b3d9ff;
         border-radius: .4em;
         position: relative;
         padding: 10px;
         margin: 1em 0;
         text-align: center;
-        color: white;
+        color: #666666;
         font-weight: bold;
         font-size: 200%;
         text-shadow: 
@@ -22,13 +22,13 @@
 
     .speech-bubble-2 {
         width: 260px;
-        background: #00aabb;
+        background: #b3d9ff;
         border-radius: .4em;
         position: relative;
         padding: 10px;
         margin: 1em 0;
         text-align: center;
-        color: white;
+        color: #666666;
         font-weight: bold;
         font-size: 200%;
         text-shadow: 
@@ -42,7 +42,7 @@
         width: 0;
         height: 0;
         border: 22px solid transparent;
-        border-left-color: #00aabb;
+        border-left-color: #b3d9ff;
         border-right: 0;
         margin-top: -22px;
         margin-right: -22px;
@@ -56,13 +56,23 @@
         width: 0;
         height: 0;
         border: 22px solid transparent;
-        border-right-color: #00aabb;
+        border-right-color: #b3d9ff;
         border-left: 0;
         margin-top: -22px;
         margin-left: -22px;
     }
 </style>
 
+<div id="id_proceso_items_div" class="form-group row proceso_items">
+    <div class="form-group">
+        <div class="col-lg-8 col-lg-offset-2">
+            <label for="reqe">Requerimientos Proceso {{ proceso.name }}</label>
+        </div>
+        <div class="col-lg-8 col-lg-offset-2">
+            <textarea disabled class="form-control">{{ proceso.requirements }}</textarea>
+        </div>
+    </div>
+</div>
 <div id="id_proceso_items_div" class="form-group row proceso_items">
     <div class="row text-center">
         {% for item in proceso.proceso_items.all %}
