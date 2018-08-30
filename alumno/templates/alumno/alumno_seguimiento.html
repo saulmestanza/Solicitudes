@@ -14,7 +14,7 @@
             {% endfor %}
             </select>
 
-            {% if perms.reporteria.add_reporter %}
+            {% if perms.alumno.add_nota %}
             <hr>
 
             <label for="id_carreras">Elija la Carrera para una mejor búsqueda</label>
@@ -34,7 +34,7 @@
                     <tr>
                         <th># Solicitud</th>
                         <th>Tipo</th>
-                        {% if perms.reporteria.add_reporter %}
+                        {% if perms.alumno.add_nota %}
                             <th>Alumno</th>
                             <th>Carrera</th>
                         {% endif %}
@@ -44,7 +44,7 @@
                         <th>Fecha Inicio</th>
                         <th>Historial</th>
 
-                      {% if perms.reporteria.add_reporter %}
+                      {% if perms.alumno.add_nota %}
                         <th>Editar</th>
                       {% endif %}
                     </tr>
@@ -58,7 +58,7 @@
                               <td>{{proceso_alumno.id}}</td>
                               <td>{{proceso_alumno.process.name}}</td>
 
-                              {% if perms.reporteria.add_reporter %}
+                              {% if perms.alumno.add_nota %}
                                   <td>{{proceso_alumno.alumn}}</td>
                                   <td>{{proceso_alumno.alumn.carrer}}</td>
                               {% endif %}
@@ -71,7 +71,7 @@
 
                               <td><a href="/alumno/alumno-seguimiento-historial/{{ proceso_alumno.id }}/"><i class="fa fa-eye  eye " style="color:#ff4d4d;" alt="view"></a></td>
                              
-                            {% if perms.reporteria.add_reporter %}
+                            {% if perms.alumno.add_nota %}
                               <td><a href="/alumno/alumno-seguimiento-edit/{{ proceso_alumno.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></a></td>
                             {% endif %}
                           </tr>
@@ -81,7 +81,7 @@
                           <td>{{proceso_alumno.id}}</td>
                           <td>{{proceso_alumno.process.name}}</td>
 
-                          {% if perms.reporteria.add_reporter %}
+                          {% if perms.alumno.add_nota %}
                               <td>{{proceso_alumno.alumn}}</td>
                               <td>{{proceso_alumno.alumn.carrer}}</td>
                           {% endif %}
@@ -94,7 +94,7 @@
 
                           <td><a href="/alumno/alumno-seguimiento-historial/{{ proceso_alumno.id }}/"><i class="fa fa-eye  eye " style="color:#ff4d4d;" alt="view"></a></td>
                          
-                        {% if perms.reporteria.add_reporter %}
+                        {% if perms.alumno.add_nota %}
                           <td><a href="/alumno/alumno-seguimiento-edit/{{ proceso_alumno.id }}/"><i class="fa fa-pencil-square-o  pencil-square-o " style="color:#33ccff;" alt="edit"></a></td>
                         {% endif %}
                       </tr>

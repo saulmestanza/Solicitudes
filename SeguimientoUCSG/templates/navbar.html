@@ -78,7 +78,7 @@ x{% load staticfiles %}
                                 <li><a href="{% url "alumno-new" %}">Nuevo Alumno</a></li>
                                 <li class="divider"></li>
                                 {% endif %}
-                                {% if not request.user.is_superuser and not perms.reporteria.add_reporter %}
+                                {% if not request.user.is_superuser and not perms.alumno.add_nota %}
                                 <li><a href="{% url "alumno-tramite" %}">Iniciar Trámite</a></li>
                                 {% endif %}
                                 <li><a href="{% url "alumno-seguimiento" %}">Seguimiento Trámites</a></li>
@@ -95,7 +95,7 @@ x{% load staticfiles %}
                         </li>
                         {% endif %}
                         {% if perms.reporteria.add_reporter %}
-                        <li class="dropdown{% if isReporte %} active{% endif%}">
+                        <li class="dropdown{% if isReporter %} active{% endif%}">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reportes<b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url "reporteria-notas" %}">Reporte Notas</a></li>

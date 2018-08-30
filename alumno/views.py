@@ -1060,7 +1060,7 @@ class AlumnoResetView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AlumnoResetView, self).get_context_data(**kwargs)
         context['alert_message'] = self.alert_message
-        context['tittle'] = "Alumnos"
+        context['tittle'] = "Recuperar Contraseña"
         context['motto'] = "Recuperar Contraseña"
         return context
 

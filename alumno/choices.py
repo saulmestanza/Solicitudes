@@ -7,8 +7,6 @@ STATUS_CHOICE=[
 	('ID' , u'Ingreso nota por Docente'),
 	('AE' , u'Aceptado por Estudiante'),
 	('RE' , u'Rechazado por Estudiante'),
-	('ED' , u'Elección Docentes Recalificadores'),
-	('DR' , u'Revisión por Docentes Recalificadores'),
 	('IR' , u'Ingreso nota por Docentes Recalificadores'),
 	('FN' , u'Finalizado'),
 ] 

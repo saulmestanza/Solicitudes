@@ -5,22 +5,29 @@
 {% endblock %}
 
 {% block content%}
+<div class="well well-sm">
+    <div class="form-group">
+        <p>Por defecto se generarán reportes de notas de todas las opciones, a menos que haya definido una previamente.</p>
+    </div>
+</div>
+<hr>
 <form class="form-horizontal" action="" method="POST">
     {% csrf_token %}
     <div id="id_process_div" class="form-group row process ">
         <label class="col-sm-2 form-control-label">*Proceso:</label>
         <div class="col-sm-10">
-            <select name="process" required="" class="form-control" id="id_process">
+            <select name="process" class="form-control" id="id_process">
                 <option value="" selected="">---------</option>
-                <option value="1">Recalificación</option>
-                <option value="2">Examen de Gracia</option>
+                {% for proceso in procesos %}
+                    <option value="{{ proceso.id }}">{{ proceso.name }}</option>
+                {% endfor %}
             </select>
         </div>
     </div>
     <div id="id_process_div" class="form-group row carrer ">
         <label class="col-sm-2 form-control-label">*Carrera:</label>
         <div class="col-sm-10">
-            <select name="carrer" required="" class="form-control" id="id_carrer">
+            <select name="carrer" class="form-control" id="id_carrer">
                 <option value="" selected="">---------</option>
                 {% for carrer in carrers %}
                 <option value="{{ carrer.id }}">{{ carrer }}</option>
@@ -31,11 +38,21 @@
     <div id="id_process_div" class="form-group row periodo ">
         <label class="col-sm-2 form-control-label">*Periodo:</label>
         <div class="col-sm-10">
-            <select name="periodo" required="" class="form-control" id="id_periodo">
-                <option value="" selected="">---------</option>
+            <select name="periodo" class="form-control" id="id_periodo">
                 {% for periodo in periodos %}
                 <option value="{{ periodo.id }}">{{ periodo.name }}</option>
                 {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div id="id_process_div" class="form-group row parcial ">
+        <label class="col-sm-2 form-control-label">*Parcial:</label>
+        <div class="col-sm-10">
+            <select name="parcial" class="form-control" id="id_parcial">
+                <option value="" selected="">---------</option>
+                <option value="1 Parcial">1 Parcial</option>
+                <option value="2 Parcial">2 Parcial</option>
+                <option value="Mejoramiento/Supletorio">Mejoramiento/Supletorio</option>
             </select>
         </div>
     </div>
@@ -51,4 +68,24 @@
         </div>
     </div>
 </form>
+
+{% if proceso_alumno %}
+<div class="well well-sm">
+    <div class="form-group">
+        <p>Por defecto se generarán reportes de notas de todas las opciones, a menos que haya definido una previamente.</p>
+    </div>
+</div>
+{% endif %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();             
+        });
+    </script>
+
+{% endblock %}
+
 {% endblock%}
+

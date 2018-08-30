@@ -10,10 +10,16 @@ from administrador.forms import CarreraForm
 
 class ReporterForm(forms.ModelForm):
 
+    process = forms.CharField(required=False)
+    carrer = forms.CharField(required=False)
+    periodo = forms.CharField(required=False)
+
     class Meta:
         model = Reporter
         fields = (
             'process',
+            'carrer',
+            'periodo',
         )
         exclude =('deleted', )
 

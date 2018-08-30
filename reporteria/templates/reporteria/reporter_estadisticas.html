@@ -5,22 +5,23 @@
 {% endblock %}
 
 {% block content%}
-<form class="form-horizontal" action="" method="POST">
+<form class="form-horizontal" action="" method="POST" id="form_stats">
     {% csrf_token %}
     <div id="id_process_div" class="form-group row process ">
         <label class="col-sm-2 form-control-label">*Proceso:</label>
         <div class="col-sm-10">
-            <select name="process" required="" class="form-control" id="id_process">
+            <select name="process"   class="form-control" id="id_process">
                 <option value="" selected="">---------</option>
-                <option value="1">Recalificación</option>
-                <option value="2">Examen de Gracia</option>
+                {% for proceso in procesos %}
+                    <option value="{{ proceso.id }}">{{ proceso.name }}</option>
+                {% endfor %}
             </select>
         </div>
     </div>
     <div id="id_process_div" class="form-group row carrer ">
         <label class="col-sm-2 form-control-label">*Carrera:</label>
         <div class="col-sm-10">
-            <select name="carrer" required="" class="form-control" id="id_carrer">
+            <select name="carrer"   class="form-control" id="id_carrer">
                 <option value="" selected="">---------</option>
                 {% for carrer in carrers %}
                 <option value="{{ carrer.id }}">{{ carrer }}</option>
@@ -28,11 +29,10 @@
             </select>
         </div>
     </div>
-    {% if user.is_staff or user.is_superuser %}
     <div id="id_process_div" class="form-group row carrer ">
         <label class="col-sm-2 form-control-label">*Profesor:</label>
         <div class="col-sm-10">
-            <select name="carrer" required="" class="form-control" id="id_profesor">
+            <select name="profesor"   class="form-control" id="id_profesor">
                 <option value="" selected="">---------</option>
                 {% for profesor in profesores %}
                 <option value="{{ profesor.id }}">{{ profesor }}</option>
@@ -40,20 +40,13 @@
             </select>
         </div>
     </div>
-    {% endif %}
     <div id="id_process_div" class="form-group row carrer ">
         <label class="col-sm-2 form-control-label">*Materia:</label>
         <div class="col-sm-10">
-            <select name="carrer" required="" class="form-control" id="id_materia">
+            <select name="materia"   class="form-control" id="id_materia">
                 <option value="" selected="">---------</option>
                 {% for materia in materias %}
-                    {% if user.is_staff or user.is_superuser %}
-                        <option value="{{ materia.id }}">{{ materia }}</option>
-                    {% else %}
-                        {% if materia in profesor.subjects.all %}
-                            <option value="{{ materia.id }}">{{ materia }}</option>
-                        {% endif %}
-                    {% endif %}
+                    <option value="{{ materia.id }}">{{ materia }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -61,12 +54,45 @@
     <div id="id_process_div" class="form-group row periodo ">
         <label class="col-sm-2 form-control-label">*Periodo:</label>
         <div class="col-sm-10">
-            <select name="periodo" required="" class="form-control" id="id_periodo">
-                <option value="" selected="">---------</option>
+            <select name="periodo"   class="form-control" id="id_periodo">
                 {% for periodo in periodos %}
                 <option value="{{ periodo.id }}">{{ periodo.name }}</option>
                 {% endfor %}
             </select>
+        </div>
+    </div>
+    <div id="id_process_div" class="form-group row parcial ">
+        <label class="col-sm-2 form-control-label">*Parcial:</label>
+        <div class="col-sm-10">
+            <select name="parcial" class="form-control" id="id_parcial">
+                <option value="" selected="">---------</option>
+                <option value="1 Parcial">1 Parcial</option>
+                <option value="2 Parcial">2 Parcial</option>
+                <option value="Mejoramiento/Supletorio">Mejoramiento/Supletorio</option>
+            </select>
+        </div>
+    </div>
+    <div id="id_process_div" class="form-group row estado ">
+        <label class="col-sm-2 form-control-label">*Estado:</label>
+        <div class="col-sm-10">
+            <select name="estado" class="form-control" id="id_estado">
+                <option value="" selected="">---------</option>
+                {% for value, text in choices %}
+                <option value="{{ value }}">{{ text }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div id="id_process_div" class="form-group row tiempo ">
+        <label class="col-sm-2 form-control-label">*Fecha Inicio:</label>
+        <div class="col-sm-10">
+            <input type="date" name="tiempo_inicio" id="id_tiempo_inicio" class="form-control">
+        </div>
+    </div>
+    <div id="id_process_div" class="form-group row tiempo ">
+        <label class="col-sm-2 form-control-label">*Fecha Fin:</label>
+        <div class="col-sm-10">
+            <input type="date" name="tiempo_fin" id="id_tiempo_fin" class="form-control">
         </div>
     </div>
     <div class="form-actions">
@@ -81,4 +107,141 @@
         </div>
     </div>
 </form>
+
+<div id="chart_div" style="width: 100%; height: 500px; display: none;"></div>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+{% block javascript %}
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            _data_ = [];
+            $("#form_stats").submit(function(e) {
+                $.ajax({ // create an AJAX call...
+                    data: $(this).serialize(), // get the form data
+                    type: $(this).attr('method'), // GET or POST
+                    url: '/api/proceso-stats/', // the file to call
+                    success: function(response) { // on success..
+                        document.getElementById('chart_div').style.display = '';
+
+                        processo = document.getElementById('id_process');
+                        carrer = document.getElementById('id_carrer');
+                        profesor = document.getElementById('id_profesor');
+                        materia = document.getElementById('id_materia');
+                        periodo = document.getElementById('id_periodo');
+                        parcial = document.getElementById('id_parcial');
+                        estado = document.getElementById('id_estado');
+                        tiempo_inicio = document.getElementById('id_tiempo_inicio');
+                        tiempo_fin = document.getElementById('id_tiempo_fin');
+
+                        _data_ = [['Carrera', 'Proceso', 'Cantidad',]];
+
+                        {% for proceso in procesos %}
+                            process_id = "{{ proceso.id }}";
+                            _count_ = 0;
+                            _process_ = "";
+                            _carrera_ = "";
+
+                            for (i = 0; i < response.length; i++) { 
+                                if(process_id == response[i]['process']['id']){
+                                    _process_ = "{{ proceso.name }}";
+                                    {% for materia in materias %}
+                                        _materia_ = "{{ materia.name }}";
+                                        if(_materia_ == response[i]['subject']){
+                                            _carrera_ = "{{ materia.cicles.carrer.name }}";
+                                        }
+                                    {% endfor %}
+                                    _count_++;
+                                }
+                            }
+
+                            _proceso_ = [];
+                            _proceso_.push(_carrera_);
+                            _proceso_.push(_process_);
+                            _proceso_.push(_count_);
+                            _data_.push(_proceso_);
+
+                        {% endfor %}
+
+                        drawVisualization();
+                    },
+                    error: function(e, x, r) { // on error..
+                        console.log(e);
+                    }
+                });
+                e.preventDefault();
+            });
+        });
+
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawVisualization);
+
+        function drawVisualization() {
+            console.log(_data_);
+            var data = google.visualization.arrayToDataTable(_data_);
+            var options = {
+                title : 'Procesos',
+                vAxis: {title: 'Cantidad'},
+                hAxis: {title: 'Proceso'},
+                seriesType: 'bars',
+                series: {5: {type: 'line'}}
+            };
+            var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+
+        $('#id_profesor').change(function(){
+            if(document.getElementById('id_profesor').value == ""){
+                $("#id_materia").empty();
+                var _ddl_ = document.getElementById("id_materia");
+                var option = document.createElement("option");
+                option.text = "----"
+                option.value = "";
+                _ddl_.add(option);
+                {% for materia in materias %}
+                    option = document.createElement("option");
+                    option.text = "{{ materia }}";
+                    option.value = "{{ materia.id }}";
+                    _ddl_.add(option);
+                {% endfor %}
+            }else{
+                var id = document.getElementById('id_profesor').value;
+                $.ajax({ // create an AJAX call...
+                    data: $(this).serialize(), // get the form data
+                    type: $(this).attr('method'), // GET or POST
+                    url: '/api/profesor-materia/' + id, // the file to call
+                    success: function(response) { // on success..
+                        $("#id_materia").empty();
+                        var i;
+                        var _ddl_ = document.getElementById("id_materia");
+                        var option = document.createElement("option");
+                        for (i = 0; i < response.length; i++) { 
+                            option = document.createElement("option");
+                            option.text = response[i]['name'];
+                            option.value = response[i]['id'];
+                            _ddl_.add(option);
+                        }
+                    },
+                    error: function(e, x, r) { // on error..
+                        $("#id_materia").empty();
+                        var _ddl_ = document.getElementById("id_materia");
+                        var option = document.createElement("option");
+                        option.text = "----"
+                        option.value = "";
+                        _ddl_.add(option);
+                        {% for materia in materias %}
+                            option = document.createElement("option");
+                            option.text = "{{ materia }}"
+                            option.value = "{{ materia.id }}";
+                            _ddl_.add(option);
+                        {% endfor %}
+                    }
+                });
+            }
+        });
+    </script>
+
+{% endblock %}
+
 {% endblock%}

@@ -56,7 +56,7 @@
                                 <a class="dropdown-item" href="{% url "alumno-new" %}">Nuevo Alumno</a>
                                 <div class="dropdown-divider"></div>
                               {% endif %}
-                              {% if not request.user.is_superuser and not perms.reporteria.add_reporter %}
+                              {% if not request.user.is_superuser and not perms.alumno.add_nota %}
                                 <a class="dropdown-item" href="{% url "alumno-tramite" %}">Iniciar Trámite</a>
                               {% endif %}
                               <a class="dropdown-item" href="{% url "alumno-seguimiento" %}">Seguimiento Trámites</a>
