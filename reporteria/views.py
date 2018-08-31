@@ -158,12 +158,12 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ReporteriaNotasCreateView, self).get_context_data(**kwargs)
-        context['tittle'] = "Reportería"
+        context['tittle'] = "Reportes"
         context['procesos'] = Proceso.objects.filter(deleted=False)
         context['carrers'] = Carrera.objects.filter(deleted=False)
         context['periodos'] = Periodo.objects.filter(deleted=False)
         context['proceso_alumno'] = self.proceso_alumno
-        context['motto'] = "Reportería Notas"
+        context['motto'] = "Reportes Notas"
         return context
 
 
@@ -193,7 +193,7 @@ class ReporteriaEstadisticasCreateView(PermissionRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ReporteriaEstadisticasCreateView, self).get_context_data(**kwargs)
-        context['tittle'] = "Reportería"
+        context['tittle'] = "Reportes"
         context['procesos'] = Proceso.objects.filter(deleted=False)
         context['carrers'] = Carrera.objects.filter(deleted=False)
         context['periodos'] = Periodo.objects.filter(deleted=False)
@@ -206,6 +206,6 @@ class ReporteriaEstadisticasCreateView(PermissionRequiredMixin, FormView):
             context['profesor'] = None
         context['profesores'] = Profesor.objects.filter(deleted=False)
         context['proceso_alumno'] = ProcesoAlumno.objects.filter(status='FN')
-        context['motto'] = "Reportería Estadísticas"
+        context['motto'] = "Reportes Estadísticos"
         return context
 

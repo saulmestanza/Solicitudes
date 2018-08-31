@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'raven.contrib.django.raven_compat',
     'corsheaders',
     'widget_tweaks',
+    'security',
     ######
     'administrador',
     'profesor',
@@ -70,6 +71,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'security.middleware.DoNotTrackMiddleware',
+    'security.middleware.ContentNoSniff',
+    'security.middleware.XssProtectMiddleware',
+    'security.middleware.XFrameOptionsMiddleware',
 ]
 
 ## SESION EXPIRES
