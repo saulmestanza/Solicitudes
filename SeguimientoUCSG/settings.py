@@ -178,7 +178,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 # STATIC_URL = '/static/'
-STATIC_URL = 'http://178.128.1.122:8000/static/static/'
+STATIC_URL = 'https://seguimientoucsg.com/static/static/'
 
 MEDIA_URL = '/media/'
 
