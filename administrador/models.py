@@ -17,7 +17,7 @@ class Facultad(models.Model):
         return self.name
 
 class Carrera(models.Model):
-    name = models.CharField(max_length=32, verbose_name=_(u'Nombre'))
+    name = models.CharField(max_length=128, verbose_name=_(u'Nombre'))
     faculty = models.ForeignKey(Facultad, on_delete=models.CASCADE, verbose_name=_('Facultad'), blank=True, null=True)
     deleted = models.BooleanField(default=False, verbose_name=_('Deshabilitado'))
 

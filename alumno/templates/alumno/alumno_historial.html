@@ -66,7 +66,7 @@
 		<div id="id_description_div" class="form-group row description ">
 			<label class="col-sm-2 form-control-label">*Descripción:</label>
 			<div class="col-sm-10">
-				<textarea name="description" {% if process_alumno.status == 'CN' or process_alumno.status == 'FN' %} disabled {% endif %} id="id_description" required="" rows="10" cols="40" class="form-control"></textarea>
+				<textarea maxlength="1024" name="description" {% if process_alumno.status == 'CN' or process_alumno.status == 'FN' %} disabled {% endif %} id="id_description" required="" rows="10" cols="40" class="form-control"></textarea>
 			</div>
 		</div>
 		<div id="id_document_div" class="form-group row document ">
