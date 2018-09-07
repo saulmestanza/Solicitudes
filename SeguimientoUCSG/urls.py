@@ -15,12 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 # from django.contrib import admin
-from django.conf.urls import url, include
-from django.shortcuts import redirect
+from django.conf import settings
+from django.conf.urls import url, include, handler404, handler500
+from django.conf.urls.static import static
+from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext as _
-from django.conf import settings
-from django.conf.urls.static import static
 
 class HomeView(TemplateView): 
     template_name = "index.html"
@@ -39,6 +39,14 @@ class HomeView(TemplateView):
             'message': _(u'Este es un sitio de acceso restringido.')}
         return context
 
+def error_404(request):
+        data = {}
+        return render(request,'404.html', data)
+
+def error_500(request):
+        data = {}
+        return render(request,'500.html', data)
+
 urlpatterns = [
     # url(r'^admin/', admin.site.urls),
     url(r'^$', HomeView.as_view(), name="base"),
@@ -49,3 +57,6 @@ urlpatterns = [
     url(r'^api/', include('webservices.urls')),
     url(r'^captcha/', include('captcha.urls')),
 ]
+
+handler404 = error_404
+handler500 = error_500
