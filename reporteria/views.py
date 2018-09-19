@@ -134,7 +134,7 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, FormView):
         )
         os.remove(settings.BASE_DIR+"/reporte_%s.pdf"%(count))
 
-        document = reporte.pdf_file.read()
+        document = _file_.read()
         return HttpResponse(document, content_type="application/pdf")
 
     def post(self, request, *args, **kwargs):
