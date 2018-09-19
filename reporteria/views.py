@@ -129,7 +129,7 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, FormView):
         doc.build(elements)
         _file_ = File(open(settings.BASE_DIR+"/reporte_%s.pdf"%(count), 'rb'))
         reporte = Reporter.objects.create(
-            pdf_file = _file_,
+            # pdf_file = _file_,
             created_by = ("%s %s")%(self.request.user.first_name, self.request.user.last_name)
         )
         os.remove(settings.BASE_DIR+"/reporte_%s.pdf"%(count))
