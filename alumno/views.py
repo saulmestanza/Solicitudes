@@ -357,12 +357,12 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
 
         _text_ = ''
         if 'Gracia' in proceso_alumno.process.name:
-            _text_ = 'el examen de gracia en la materia %s al estudiante %s'%(proceso_alumno.subject.name, alumno.user.first_name, alumno.user.last_name)
+            _text_ = 'el examen de gracia en la materia %s al estudiante %s'%(u(proceso_alumno.subject.name), u(alumno.user.first_name), u(alumno.user.last_name))
         else:
-            _text_ = 'la recalificación del estudiante %s %s en los temas solicitados'%(alumno.user.first_name, alumno.user.last_name)
+            _text_ = 'la recalificación del estudiante %s %s en los temas solicitados'%(u(alumno.user.first_name), u(alumno.user.last_name))
 
         body = "Yo ,%s %s , docente de la carrera %s he procedido a realizar %s."%(
-            profesor.first_name, profesor.last_name, proceso_alumno.subject.cicles.carrer.name, _text_
+            u(profesor.first_name), u(profesor.last_name), u(proceso_alumno.subject.cicles.carrer.name), u(_text_)
             )
         document.add_paragraph(body)
         last_paragraph = document.paragraphs[-1] 
