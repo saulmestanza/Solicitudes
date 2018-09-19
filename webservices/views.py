@@ -173,3 +173,53 @@ class ProcesoAlumnoStatsAPIView(APIView):
 		serializer = ProcesoAlumnoWSSerializer(proceso_alumno, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class ProcesoStatsAPIView(APIView):
+	DOES_NOT_EXISTS_RESPONSE = Response(
+		{ "non_field_errors": ["DoesNotExist: Materia matching query does not exist."] },
+		status=status.HTTP_404_NOT_FOUND
+	)
+
+	permission_classes = (
+		permissions.AllowAny,
+	)
+	queryset = ProcesoAlumno.objects.all()
+	throttle_classes = (
+		UserRateThrottle,
+	)
+	proceso_alumno = None
+
+	def post(self, request, **kwargs):
+		processo = request.POST.get('processo', "")
+		carrer = request.POST.get('carrer', "")
+		profesor = request.POST.get('profesor', "")
+		materia = request.POST.get('materia', "")
+		periodo = request.POST.get('periodo', "")
+		parcial = request.POST.get('parcial', "")
+		estado = request.POST.get('estado', "")
+		tiempo_inicio = request.POST.get('tiempo_inicio', "")
+		tiempo_fin = request.POST.get('tiempo_fin', "")
+
+		if processo:
+			self.proceso_alumno = ProcesoAlumno.objects.filter(process__id=processo)
+		else:
+			self.proceso_alumno = ProcesoAlumno.objects.all()
+
+		if carrer:
+			self.proceso_alumno = self.proceso_alumno.filter(subject__cicles__carrer__id=carrer)
+		if periodo:
+			_periodo_ = Periodo.objects.filter(pk=periodo).first()
+			self.proceso_alumno = self.proceso_alumno.filter(periodo=_periodo_.name)
+		if parcial:
+			self.proceso_alumno = self.proceso_alumno.filter(Q(parcial=parcial) | Q(parcial=''))
+		if estado:
+			self.proceso_alumno = self.proceso_alumno.filter(status = estado)
+		if tiempo_inicio and tiempo_fin:
+			self.proceso_alumno = self.proceso_alumno.filter(creation_date__range = [tiempo_inicio, tiempo_fin])
+		if materia:
+			self.proceso_alumno = self.proceso_alumno.filter(subject__id=materia)
+
+		self.proceso_alumno = self.proceso_alumno.order_by('subject__id')
+		serializer = ProcesoAlumnoWSSerializer(self.proceso_alumno, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+

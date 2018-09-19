@@ -8,4 +8,5 @@ urlpatterns = [
 	url(r'^materia/(?P<id>[\d]+)/$', views.MateriaAPIView.as_view(), name="materia-api"),
 	url(r'^profesor-materia/(?P<id>[\d]+)/$', views.ProfesorMateriaAPIView.as_view(), name="profesor-materia-api"),
 	url(r'^proceso-stats/$', views.ProcesoAlumnoStatsAPIView.as_view(), name="proceso-stats"),
+	url(r'^proceso/$', views.ProcesoStatsAPIView.as_view(), name="proceso"),
 ]

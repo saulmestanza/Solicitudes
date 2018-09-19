@@ -1,3 +1,3 @@
 {% load i18n %}{% autoescape off %}
-{% blocktrans %}Bienvenido Profesor a {{ site_name }}{% endblocktrans %}
+{% blocktrans %}Bienvenido Docente a {{ site_name }}{% endblocktrans %}
 {% endautoescape %}

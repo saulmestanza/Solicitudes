@@ -355,8 +355,14 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
         document.add_paragraph('')
         document.add_paragraph('')
 
-        body = "Yo ,%s %s , docente de la carrera %s, Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."%(
-            profesor.first_name, profesor.last_name, proceso_alumno.subject.cicles.carrer.name
+        _text_ = ''
+        if 'Gracia' in proceso_alumno.process.name:
+            _text_ = 'el examen de gracia en la materia %s al estudiante %s'%(proceso_alumno.subject.name, alumno.user.first_name, alumno.user.last_name)
+        else:
+            _text_ = 'la recalificación del estudiante %s %s en los temas solicitados'%(alumno.user.first_name, alumno.user.last_name)
+
+        body = "Yo ,%s %s , docente de la carrera %s he procedido a realizar %s."%(
+            profesor.first_name, profesor.last_name, proceso_alumno.subject.cicles.carrer.name, _text_
             )
         document.add_paragraph(body)
         last_paragraph = document.paragraphs[-1] 

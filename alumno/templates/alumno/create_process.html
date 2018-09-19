@@ -285,7 +285,7 @@
                   <table border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <p>El Alumno, {{ alumno.user.first_name }} {{ alumno.user.last_name }} ha generado el siguiente trámite {{ proceso_alumno }} el día de {{ today }}.</p>
+                        <p>Buenas noches, el Alumno {{ alumno.user.first_name }} {{ alumno.user.last_name }} ha generado el siguiente trámite {{ proceso_alumno }} el día de {{ today }}.</p>
 
                         <p>Detalles:</p>
 
@@ -316,7 +316,7 @@
                           <li>Tema: {{ item.name }} - Argumento: {{ item.description }}</li>
                           {% endfor %}
                         </ul>
-                        <p> Se ha enviado una copia de este correo al profesor de la materia, {{ profesor.user.first_name }} {{ profesor.user.last_name }}, y a Coordinación Académica 1.</p>
+                        <p> Se ha enviado una copia de este correo al profesor de la materia, {{ profesor.user.first_name }} {{ profesor.user.last_name }}, a Coordinación Académica 1 y a secretaria de la carrera.</p>
 
                         {% endif %}
                         <p>Para saber el estado de su trámite ingrese a la siguiente <a href="{{ link }}">página</a>, también se enviará notificaciones por este medio a todos los involucrados.</p>

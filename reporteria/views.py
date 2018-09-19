@@ -80,7 +80,7 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, FormView):
             for proceso in process:
                 heading_proceso = Paragraph(proceso.name, sample_style_sheet['Heading3'])
                 data = [
-                    ["Carrera", "Materia", "Docente", "Estudiante", "Parcial", "Nota"],
+                    ["Carrera", "Materia", "Estudiante", "Docente", "Parcial", "Nota"],
                 ]
                 for proceso_alumn in self.proceso_alumno:
                     if proceso.name == proceso_alumn.process.name and proceso_alumn.subject.cicles.carrer.name == carrera.name:
@@ -99,9 +99,10 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, FormView):
                         if _nota_ != 0.0:
                             _nota_ = _nota_ / i
 
+                        myList.append("%s %s"%(proceso_alumn.alumn.user.first_name, proceso_alumn.alumn.user.last_name))
+
                         myList.append(_profesor_)
 
-                        myList.append("%s %s"%(proceso_alumn.alumn.user.first_name, proceso_alumn.alumn.user.last_name))
                         myList.append(proceso_alumn.parcial)
 
                         myList.append(str(_nota_))
@@ -173,6 +174,7 @@ class ReporteriaEstadisticasCreateView(PermissionRequiredMixin, FormView):
     form_class = ReporterForm
     template_name = 'reporteria/reporter_estadisticas.html'
     success_url = '/reporteria/reporteria-estadisticas/'
+    proceso_alumno = None
     permission_required = (
         'reporteria.add_reporter',
     )
