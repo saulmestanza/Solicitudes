@@ -62,7 +62,7 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, FormView):
     def generate_pdf(self, request, carrer):
         sample_style_sheet = getSampleStyleSheet()
         count = Reporter.objects.count()
-        doc = SimpleDocTemplate("reporte_%s.pdf"%(count), pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=18)
+        doc = SimpleDocTemplate(settings.BASE_DIR+"reporte_%s.pdf"%(count), pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=18)
         elements = []
         I = Image(settings.BASE_DIR+'/header.png')
         I.drawHeight =  1.5*inch
@@ -127,12 +127,12 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, FormView):
                     elements.append(heading_proceso)
                     elements.append(t)
         doc.build(elements)
-        _file_ = File(open("reporte_%s.pdf"%(count), 'rb'))
+        _file_ = File(open(settings.BASE_DIR+"reporte_%s.pdf"%(count), 'rb'))
         reporte = Reporter.objects.create(
             pdf_file = _file_,
             created_by = ("%s %s")%(self.request.user.first_name, self.request.user.last_name)
         )
-        os.remove("reporte_%s.pdf"%(count))
+        os.remove(settings.BASE_DIR+"reporte_%s.pdf"%(count))
 
         document = reporte.pdf_file.read()
         return HttpResponse(document, content_type="application/pdf")
