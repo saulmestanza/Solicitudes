@@ -64,7 +64,7 @@ class ReporteriaNotasCreateView(PermissionRequiredMixin, FormView):
         count = Reporter.objects.count()
         doc = SimpleDocTemplate("reporte_%s.pdf"%(count), pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=18)
         elements = []
-        I = Image('header.png')
+        I = Image(settings.BASE_DIR+'/header.png')
         I.drawHeight =  1.5*inch
         I.drawWidth = 3*inch
         elements.append(I)

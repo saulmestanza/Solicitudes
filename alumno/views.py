@@ -394,7 +394,7 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
 
         document.add_paragraph('')
 
-        document.add_paragraph('%s %s'%(profesor.first_name, profesor.last_name))
+        document.add_paragraph('%s %s'%(u(profesor.first_name), u(profesor.last_name)))
         document.add_paragraph('_________________________________')
 
         document.save(settings.BASE_DIR+'/formato_notas.docx')
