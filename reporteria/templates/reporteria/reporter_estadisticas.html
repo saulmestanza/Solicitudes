@@ -177,7 +177,7 @@
 
                         _data_ = [];
 
-                        // _data_.push(['Materia', 'Examen de Gracia', 'Recalificación']);
+                        _data_.push(['Materia', 'Examen de Gracia', 'Recalificación']);
 
                         var c1 = 0;
                         var c2 = 0;
@@ -196,15 +196,9 @@
                             }
                             _data_.push([response[i]['subject'], c1, c2]);
                         }
-                        
-                        var newarr = [['Materia', 'Examen de Gracia', 'Recalificación']];
+                    
 
-                        for (var i=1; i<_data_.length; i++) {
-                            
-                           if (_data_[i]!=_data_[i-1]) newarr.push(_data_[i]);
-                        }
-
-                        data = google.visualization.arrayToDataTable(newarr);
+                        data = google.visualization.arrayToDataTable(_data_);
                         options = {
                             title : 'Materia',
                             vAxis: {title: 'Cantidad'},

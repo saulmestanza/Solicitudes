@@ -357,12 +357,12 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
 
         _text_ = ''
         if 'Gracia' in proceso_alumno.process.name:
-            _text_ = 'el examen de gracia en la materia %s al estudiante %s'%(u(proceso_alumno.subject.name), u(alumno.user.first_name), u(alumno.user.last_name))
+            _text_ = u'el examen de gracia en la materia %s al estudiante %s'%(proceso_alumno.subject.name, alumno.user.first_name, alumno.user.last_name)
         else:
-            _text_ = 'la recalificación del estudiante %s %s en los temas solicitados'%(u(alumno.user.first_name), u(alumno.user.last_name))
+            _text_ = u'la recalificación del estudiante %s %s en los temas solicitados'%(alumno.user.first_name, alumno.user.last_name)
 
-        body = "Yo ,%s %s , docente de la carrera %s he procedido a realizar %s."%(
-            u(profesor.first_name), u(profesor.last_name), u(proceso_alumno.subject.cicles.carrer.name), u(_text_)
+        body = u"Yo ,%s %s , docente de la carrera %s he procedido a realizar %s."%(
+            profesor.first_name, profesor.last_name, proceso_alumno.subject.cicles.carrer.name, _text_
             )
         document.add_paragraph(body)
         last_paragraph = document.paragraphs[-1] 
@@ -394,7 +394,7 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
 
         document.add_paragraph('')
 
-        document.add_paragraph('%s %s'%(u(profesor.first_name), u(profesor.last_name)))
+        document.add_paragraph(u'%s %s'%(profesor.first_name, profesor.last_name))
         document.add_paragraph('_________________________________')
 
         document.save(settings.BASE_DIR+'/formato_notas.docx')
@@ -454,6 +454,7 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
         if form.is_valid():
             return self.form_valid(form)
         else:
+            print "#33"
             print form.errors
 
     def form_valid(self, form):
@@ -505,7 +506,6 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
             # Enviar correo
             self.send_mail_to_user(alumno, profesor, proceso_alumno, historial, self.request)
         except Exception, e:
-            print e
             errors = form._errors.setdefault("error", ErrorList())
             response = super(AlumnoSeguimientoItemUpdateView, self).form_invalid(form)
         return response
