@@ -196,9 +196,15 @@
                             }
                             _data_.push([response[i]['subject'], c1, c2]);
                         }
-                    
+                        
+                        var newarr = [['Materia', 'Examen de Gracia', 'Recalificación']];
 
-                        data = google.visualization.arrayToDataTable(_data_);
+                        for (var i=1; i<_data_.length; i++) {
+                            
+                           if (_data_[i]!=_data_[i-1]) newarr.push(_data_[i]);
+                        }
+
+                        data = google.visualization.arrayToDataTable(newarr);
                         options = {
                             title : 'Materia',
                             vAxis: {title: 'Cantidad'},
