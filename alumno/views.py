@@ -501,7 +501,7 @@ class AlumnoSeguimientoItemUpdateView(PermissionRequiredMixin, UpdateView):
                 if not (nota in proceso_alumno.notes.all()):
                     proceso_alumno.notes.add(nota)
                     proceso_alumno.save()
-                    self.send_mail_to_profesor(alumno, self.request.user, proceso_alumno, nota, self.request)
+                    # self.send_mail_to_profesor(alumno, self.request.user, proceso_alumno, nota, self.request)
 
             # Enviar correo
             self.send_mail_to_user(alumno, profesor, proceso_alumno, historial, self.request)
